@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" data-scheme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYBERTYPE Feature Roadmap — Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-scheme="light"]) {
+      --bg:#09090b;--bg-card:#18181b;--border:#27272a;--border-dim:#1c1c1f;
+      --text:#d4d4d8;--text-muted:#71717a;--text-dim:#52525b;--text-vdim:#3f3f46;
+      --accent:#f97316;--accent-6:#ea580c;--accent-9:#7c2d12;
+      --accent-bg:rgba(234,88,12,0.08);--accent-bd:rgba(234,88,12,0.25);
+      --red:#ef4444;--red-lt:#f87171;--green:#4ade80;--blue:#60a5fa;
+      --sidebar-bg:#111113;--pre-bg:#09090b;--kbd-bg:#18181b;--kbd-border:#3f3f46;
+      --dot-color:rgba(234,88,12,0.04);--glow:0 0 20px rgba(234,88,12,0.3);
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-scheme="dark"]) {
+      --bg:#f8fafc;--bg-card:#ffffff;--border:#e2e8f0;--border-dim:#f1f5f9;
+      --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;--text-vdim:#cbd5e1;
+      --accent:#6366f1;--accent-6:#4f46e5;--accent-9:#312e81;
+      --accent-bg:rgba(99,102,241,0.08);--accent-bd:rgba(99,102,241,0.25);
+      --red:#ef4444;--red-lt:#f87171;--green:#22c55e;--blue:#3b82f6;
+      --sidebar-bg:#f1f5f9;--pre-bg:#f8fafc;--kbd-bg:#f1f5f9;--kbd-border:#e2e8f0;
+      --dot-color:rgba(99,102,241,0.05);--glow:none;
+    }
+  }
+  :root[data-scheme="dark"] {
+    --bg:#09090b;--bg-card:#18181b;--border:#27272a;--border-dim:#1c1c1f;
+    --text:#d4d4d8;--text-muted:#71717a;--text-dim:#52525b;--text-vdim:#3f3f46;
+    --accent:#f97316;--accent-6:#ea580c;--accent-9:#7c2d12;
+    --accent-bg:rgba(234,88,12,0.08);--accent-bd:rgba(234,88,12,0.25);
+    --red:#ef4444;--red-lt:#f87171;--green:#4ade80;--blue:#60a5fa;
+    --sidebar-bg:#111113;--pre-bg:#09090b;--kbd-bg:#18181b;--kbd-border:#3f3f46;
+    --dot-color:rgba(234,88,12,0.04);--glow:0 0 20px rgba(234,88,12,0.3);
+  }
+  :root[data-scheme="light"] {
+    --bg:#f8fafc;--bg-card:#ffffff;--border:#e2e8f0;--border-dim:#f1f5f9;
+    --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;--text-vdim:#cbd5e1;
+    --accent:#6366f1;--accent-6:#4f46e5;--accent-9:#312e81;
+    --accent-bg:rgba(99,102,241,0.08);--accent-bd:rgba(99,102,241,0.25);
+    --red:#ef4444;--red-lt:#f87171;--green:#22c55e;--blue:#3b82f6;
+    --sidebar-bg:#f1f5f9;--pre-bg:#f8fafc;--kbd-bg:#f1f5f9;--kbd-border:#e2e8f0;
+    --dot-color:rgba(99,102,241,0.05);--glow:none;
+  }
+
+  body { background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;background-image:radial-gradient(circle,var(--dot-color) 1px,transparent 1px);background-size:30px 30px; }
+
+  .theme-switcher { position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:5px 8px; }
+  .theme-btn { width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:border-color 0.15s,transform 0.1s; }
+  .theme-btn:hover { transform:scale(1.15); }
+  .theme-btn.active { border-color:var(--accent); }
+  .theme-btn[data-s="dark"]  { background:#09090b;outline:1px solid #3f3f46;outline-offset:1px; }
+  .theme-btn[data-s="light"] { background:#f8fafc;outline:1px solid #e2e8f0;outline-offset:1px; }
+
+  .layout { display:flex;min-height:100vh; }
+  .sidebar { position:fixed;top:0;left:0;width:230px;height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--border-dim);padding:28px 0;overflow-y:auto;z-index:10; }
+  .sidebar-logo { font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:18px;color:var(--accent-6);text-shadow:var(--glow);padding:0 20px 24px;border-bottom:1px solid var(--border-dim);display:block;letter-spacing:-0.02em; }
+  .sidebar-sub { font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);font-weight:400;display:block;margin-top:3px;letter-spacing:0.05em; }
+  .nav-section-label { font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-vdim);padding:20px 20px 8px; }
+  .nav-link { display:flex;align-items:center;gap:10px;padding:7px 20px;font-size:13px;color:var(--text-muted);text-decoration:none;transition:color 0.15s,background 0.15s;cursor:pointer; }
+  .nav-link:hover { color:var(--accent);background:var(--accent-bg); }
+  .nav-link .num { font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);min-width:16px; }
+
+  .main { margin-left:230px;padding:48px 48px 80px;max-width:960px; }
+  .page-header { margin-bottom:40px; }
+  .page-label { font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:var(--accent);margin-bottom:10px; }
+  .page-title { font-family:'Space Grotesk',sans-serif;font-size:2.4rem;font-weight:900;color:var(--accent-6);text-shadow:var(--glow);letter-spacing:-0.02em;line-height:1;margin-bottom:10px; }
+  .page-meta { display:flex;gap:12px;flex-wrap:wrap;margin-top:12px; }
+  .meta-badge { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border);border-radius:5px;padding:3px 10px; }
+
+  .section { margin-bottom:52px;scroll-margin-top:24px; }
+  .section-header { display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border-dim); }
+  .section-num { font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:5px;padding:2px 8px;min-width:32px;text-align:center; }
+  .section-title { font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:var(--text); }
+
+  .badge { font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;border-radius:4px;padding:2px 7px;letter-spacing:0.1em; }
+  .badge-orange { color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd); }
+  .badge-green  { color:var(--green);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25); }
+  .badge-blue   { color:var(--blue);background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.25); }
+  .badge-red    { color:var(--red-lt);background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25); }
+  .badge-done   { color:var(--green);background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25); }
+  .done-overlay { position:absolute;top:12px;right:12px; }
+  .feature-card { position:relative; }
+
+  .card { background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px; }
+  .card-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+  .card-grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
+
+  .feature-card { background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px; }
+  .feature-card:hover { border-color:var(--accent-bd); }
+  .feature-header { display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px; }
+  .feature-title { font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--text); }
+  .feature-desc { font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.7; }
+  .feature-tags { display:flex;gap:6px;flex-wrap:wrap; }
+
+  table { width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px; }
+  thead tr { background:var(--sidebar-bg); }
+  th { font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);padding:9px 14px;text-align:left;border-bottom:1px solid var(--border); }
+  td { padding:9px 14px;border-bottom:1px solid var(--border-dim);color:var(--text-muted);vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--accent-bg); }
+  td code { color:var(--accent); }
+  .td-green { color:var(--green); }
+  .td-red   { color:var(--red-lt); }
+  .td-blue  { color:var(--blue); }
+
+  pre { background:var(--pre-bg);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:var(--text-muted);overflow-x:auto;margin-bottom:14px; }
+  .kw{color:var(--accent)}.fn{color:var(--accent-6)}.str{color:var(--green)}.cm{color:var(--text-vdim)}.num{color:var(--blue)}.tp{color:#c084fc}
+
+  code { font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-bd);border-radius:4px;padding:1px 5px; }
+
+  .file-tree { background:var(--pre-bg);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2; }
+  .ft-dir{color:var(--accent)}.ft-file{color:var(--text-muted)}.ft-cm{color:var(--text-vdim)}.ft-new{color:var(--accent);font-weight:700}
+
+  .note { background:var(--accent-bg);border-left:3px solid var(--accent-6);border-radius:0 7px 7px 0;padding:10px 14px;font-size:13px;color:var(--text-muted);margin-bottom:14px; }
+
+  kbd { font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--kbd-bg);border:1px solid var(--kbd-border);border-bottom:2px solid var(--kbd-border);border-radius:5px;padding:2px 7px;color:var(--text-muted); }
+
+  hr { border:none;border-top:1px solid var(--border-dim);margin:32px 0; }
+  h3 { font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin:20px 0 10px; }
+  p { color:var(--text-muted);font-size:13px;margin-bottom:12px;line-height:1.7; }
+  ul.spec-list { padding-left:18px;color:var(--text-muted);line-height:2;font-size:13px; }
+  ul.spec-list li strong { color:var(--text); }
+
+  .priority { font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;border-radius:20px;padding:2px 9px;white-space:nowrap; }
+  .p-high { color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd); }
+  .p-med  { color:var(--blue);background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.25); }
+  .p-low  { color:var(--text-dim);background:transparent;border:1px solid var(--border); }
+
+  .effort { font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:400;border-radius:4px;padding:2px 7px;white-space:nowrap; }
+  .e-s { color:var(--green);background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2); }
+  .e-m { color:var(--blue);background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2); }
+  .e-l { color:var(--red-lt);background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2); }
+
+  @media (max-width:768px) {
+    .sidebar{display:none}.main{margin-left:0;padding:24px 20px 60px}
+    .card-grid-2,.card-grid-3{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="theme-switcher">
+  <div class="theme-btn" data-s="dark"  title="Dark"  onclick="setScheme('dark')"></div>
+  <div class="theme-btn" data-s="light" title="Light" onclick="setScheme('light')"></div>
+</div>
+
+<div class="layout">
+
+  <nav class="sidebar">
+    <span class="sidebar-logo">
+      CYBERTYPE
+      <span class="sidebar-sub">Feature Roadmap · v1.0 · 2026-04-28</span>
+    </span>
+    <div class="nav-section-label">Contents</div>
+    <a class="nav-link" href="#s1"><span class="num">01</span> Overview</a>
+    <a class="nav-link" href="#s2"><span class="num">02</span> Game Modes</a>
+    <a class="nav-link" href="#s3"><span class="num">03</span> Stats &amp; Progress</a>
+    <a class="nav-link" href="#s4"><span class="num">04</span> UI &amp; Polish</a>
+    <a class="nav-link" href="#s5"><span class="num">05</span> Summary Table</a>
+    <a class="nav-link" href="#s6"><span class="num">06</span> File Changes</a>
+    <a class="nav-link" href="#s7"><span class="num">07</span> Suggested Order</a>
+  </nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div class="page-label">Feature Roadmap</div>
+      <div class="page-title">What to Build Next</div>
+      <div class="page-meta">
+        <span class="meta-badge">CYBERTYPE</span>
+        <span class="meta-badge">React 18 + Vite + Tailwind v4</span>
+        <span class="meta-badge">10 features</span>
+        <span class="meta-badge">8 completed</span>
+        <span class="meta-badge">2026-04-28</span>
+      </div>
+    </div>
+
+    <!-- S1 -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">Overview</span>
+      </div>
+      <p>Ten features across three categories: <strong>Game Modes</strong>, <strong>Stats &amp; Progress</strong>, and <strong>UI &amp; Polish</strong>. Nine features are complete. One remains (F-10 Keyboard Heatmap).</p>
+      <div class="card-grid-3">
+        <div class="card" style="text-align:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--accent)">4</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Game Mode features</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--blue)">3</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Stats &amp; Progress features</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--green)">3</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">UI &amp; Polish features</div>
+        </div>
+      </div>
+      <div class="card-grid-2" style="margin-top:14px">
+        <div class="card" style="text-align:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--green)">8</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Completed</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--accent)">2</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Remaining</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+        <span class="effort e-s">S = small (&lt;2h)</span>
+        <span class="effort e-m">M = medium (2–4h)</span>
+        <span class="effort e-l">L = large (&gt;4h)</span>
+        <span class="priority p-high" style="margin-left:8px">high</span>
+        <span class="priority p-med">medium</span>
+        <span class="priority p-low">low</span>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">Game Modes</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">BUG FIX</div>
+            <div class="feature-title">Tab Key — Accidental Restart Guard</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-high">high</span><span class="effort e-s">S</span>
+          </div>
+        </div>
+        <div class="feature-desc"><kbd>Tab</kbd> previously triggered a test restart unconditionally — including during idle and active typing, causing accidental restarts. Now <kbd>Tab</kbd> only restarts when the test is <strong>paused</strong>. The restart shortcut hint icon is also hidden during active typing.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">TypingArena.tsx</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-01</div>
+            <div class="feature-title">Custom Time Duration</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-high">high</span><span class="effort e-s">S</span>
+          </div>
+        </div>
+        <div class="feature-desc">Let users type a custom number for the timer instead of only 15 / 30 / 60s. A small inline input in the mode selector lets them enter any duration (e.g. 45s, 90s, 120s) and confirm with <kbd>Enter</kbd>. Value clamps to 10–300s.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">ModeSelector.tsx</span>
+          <span class="badge badge-orange">useApp.tsx</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-02</div>
+            <div class="feature-title">Punctuation &amp; Numbers Mode</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-high">high</span><span class="effort e-m">M</span>
+          </div>
+        </div>
+        <div class="feature-desc">Toggle buttons to include punctuation and/or numbers in the generated word list. When <strong>punct</strong> is on, ~25% of words get a comma, period, or apostrophe appended. When <strong>num</strong> is on, ~15% of words are replaced with random 1–4 digit numbers. Both can be active simultaneously.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">generateWords.ts</span>
+          <span class="badge badge-orange">Header.tsx</span>
+          <span class="badge badge-orange">useApp.tsx</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-03</div>
+            <div class="feature-title">Sudden Death Mode</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-med">medium</span><span class="effort e-s">S</span>
+          </div>
+        </div>
+        <div class="feature-desc">The test ends immediately on any single error. A toggle in the mode selector activates it. When active, the typing arena shows a subtle red-tinted border. On failure, results show "TERMINATED" with WPM at time of death and word reached.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">useTypingEngine.ts</span>
+          <span class="badge badge-orange">useApp.tsx</span>
+          <span class="badge badge-orange">ResultsScreen.tsx</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-04</div>
+            <div class="feature-title">Quotes Mode</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="priority p-med">medium</span><span class="effort e-l">L</span>
+          </div>
+        </div>
+        <div class="feature-desc">A new mode alongside <code>time</code> / <code>words</code> that loads a random quote from a bundled dataset. The test ends when the last character is typed — no timer. Quotes are sourced from a static <code>quotes.ts</code> file (20–30 entries per language). Short / medium / long length filters can be added later.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">ModeSelector.tsx</span>
+          <span class="badge badge-orange">useApp.tsx</span>
+          <span class="badge badge-orange">useTypingEngine.ts</span>
+          <span class="badge badge-red">new file: quotes.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">Stats &amp; Progress</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-05</div>
+            <div class="feature-title">WPM Trend Chart in Stats Drawer</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-high">high</span><span class="effort e-s">S</span>
+          </div>
+        </div>
+        <div class="feature-desc">Add a mini Recharts <code>LineChart</code> inside <code>StatsDrawer</code> showing the last 5 WPM scores as a trend line. Recharts is already installed. Compact (full-width, ~80px tall), styled with the orange accent, uses existing <code>history</code> data — no new storage needed.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">StatsDrawer.tsx</span>
+          <span class="badge badge-green">recharts already installed</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-06</div>
+            <div class="feature-title">Accuracy Trend</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-med">medium</span><span class="effort e-s">S</span>
+          </div>
+        </div>
+        <div class="feature-desc">Extend the trend chart (F-05) with accuracy as a second dashed line (zinc-500). A small legend distinguishes the two. Helps users see whether speed gains come at the cost of accuracy.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">StatsDrawer.tsx</span>
+          <span class="badge badge-blue">depends on F-05</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-07</div>
+            <div class="feature-title">Consistency Score</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-med">medium</span><span class="effort e-m">M</span>
+          </div>
+        </div>
+        <div class="feature-desc">Compute a <strong>consistency %</strong> after the test: how steady the WPM was throughout (100% = perfectly even pace). Calculated as <code>100 - (stdDev / mean) * 100</code> from the per-second WPM snapshots already recorded by <code>recordWpmSnapshot</code>. Shown on the results screen alongside WPM and accuracy.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">calcStats.ts</span>
+          <span class="badge badge-orange">ResultsScreen.tsx</span>
+          <span class="badge badge-orange">useTypingEngine.ts</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">UI &amp; Polish</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-08</div>
+            <div class="feature-title">Caret Style Selector</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-high">high</span><span class="effort e-s">S</span>
+          </div>
+        </div>
+        <div class="feature-desc">Let users choose between three caret styles, persisted to <code>localStorage</code>: <strong>block</strong> (current filled rectangle), <strong>line</strong> (thin 2px vertical bar), and <strong>underline</strong> (1px bar under the current character). A small selector in the stats drawer. Only <code>Caret.tsx</code> needs visual updating.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">Caret.tsx</span>
+          <span class="badge badge-orange">StatsDrawer.tsx</span>
+          <span class="badge badge-orange">useStorage.ts</span>
+          <span class="badge badge-green">no new files</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-09</div>
+            <div class="feature-title">Sound Effects</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="badge badge-done">✓ done</span>
+            <span class="priority p-med">medium</span><span class="effort e-m">M</span>
+          </div>
+        </div>
+        <div class="feature-desc">Subtle audio feedback: soft click on correct keypresses, a distinct blip on errors, chime on test completion. Uses the <strong>Web Audio API</strong> — no libraries, no audio files. Sounds generated procedurally as short sine/square wave tones. A mute toggle (persisted) appears in the stats drawer.</div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">useApp.tsx</span>
+          <span class="badge badge-orange">StatsDrawer.tsx</span>
+          <span class="badge badge-red">new file: useSound.ts</span>
+          <span class="badge badge-green">no audio assets needed</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-header">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);margin-bottom:4px">F-10</div>
+            <div class="feature-title">Keyboard Heatmap</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="priority p-low">low</span><span class="effort e-l">L</span>
+          </div>
+        </div>
+        <div class="feature-desc">
+          After a test completes, the results screen shows a QWERTY keyboard layout where each key tile is heat-colored based on the number of times that key was typed <strong>incorrectly</strong> during the test.<br><br>
+          <strong>Visual layout:</strong> Three staggered rows of key tiles (Row 1: Q–P, Row 2: A–L, Row 3: Z–M), rendered as flex rows with slight left-offset per row to mimic a real keyboard. Each key is a small square tile (~32×32px), rounded corners, font-mono uppercase letter centered inside.<br><br>
+          <strong>Color tiers by error count:</strong><br>
+          &nbsp;• <span style="color:var(--text-muted)">0 errors</span> → <code>bg-zinc-800 text-zinc-500</code> (neutral/dark)<br>
+          &nbsp;• <span style="color:var(--accent)">1–2 errors</span> → <code>bg-orange-950/60 text-orange-400</code> (mild heat)<br>
+          &nbsp;• <span style="color:var(--accent)">3–5 errors</span> → <code>bg-orange-900/70 text-orange-300</code> (warm)<br>
+          &nbsp;• <span style="color:var(--red-lt)">6+ errors</span> → <code>bg-orange-600 text-white</code> (hot — full glow)<br><br>
+          The heatmap is shown only when there is at least one error. It appears on the results screen below the WPM chart in a card labeled <em>"key errors"</em>. Keys with errors also show a small error-count badge in the corner.
+        </div>
+        <div class="feature-tags">
+          <span class="badge badge-orange">useTypingEngine.ts — track keyErrors map</span>
+          <span class="badge badge-orange">ResultsScreen.tsx — render heatmap card</span>
+          <span class="badge badge-red">new file: KeyboardHeatmap.tsx</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">Summary Table</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Feature</th><th>Category</th><th>Priority</th><th>Effort</th><th>New Files?</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>F-01</code></td><td>Custom Time Duration</td><td>Game Mode</td><td><span class="priority p-high">high</span></td><td><span class="effort e-s">S</span></td><td class="td-green">No</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-02</code></td><td>Punctuation &amp; Numbers Mode</td><td>Game Mode</td><td><span class="priority p-high">high</span></td><td><span class="effort e-m">M</span></td><td class="td-green">No</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-03</code></td><td>Sudden Death Mode</td><td>Game Mode</td><td><span class="priority p-med">medium</span></td><td><span class="effort e-s">S</span></td><td class="td-green">No</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-04</code></td><td>Quotes Mode</td><td>Game Mode</td><td><span class="priority p-med">medium</span></td><td><span class="effort e-l">L</span></td><td class="td-red">Yes — <code>quotes.ts</code></td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-05</code></td><td>WPM Trend Chart in Drawer</td><td>Stats</td><td><span class="priority p-high">high</span></td><td><span class="effort e-s">S</span></td><td class="td-green">No</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-06</code></td><td>Accuracy Trend</td><td>Stats</td><td><span class="priority p-med">medium</span></td><td><span class="effort e-s">S</span></td><td class="td-green">No (needs F-05)</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-07</code></td><td>Consistency Score</td><td>Stats</td><td><span class="priority p-med">medium</span></td><td><span class="effort e-m">M</span></td><td class="td-green">No</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-08</code></td><td>Caret Style Selector</td><td>UI</td><td><span class="priority p-high">high</span></td><td><span class="effort e-s">S</span></td><td class="td-green">No</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-09</code></td><td>Sound Effects</td><td>UI</td><td><span class="priority p-med">medium</span></td><td><span class="effort e-m">M</span></td><td class="td-red">Yes — <code>useSound.ts</code></td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td><code>F-10</code></td><td>Keyboard Heatmap</td><td>UI</td><td><span class="priority p-low">low</span></td><td><span class="effort e-l">L</span></td><td class="td-red">Yes — <code>KeyboardHeatmap.tsx</code></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- S6 -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">File Changes Required</span>
+      </div>
+      <p>Files touched per feature. Files marked ★ are new. <span class="badge badge-done">✓ done</span> = already implemented.</p>
+      <div class="file-tree">
+        <div><span class="ft-dir">src/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">useApp.tsx</span> &nbsp;<span class="ft-cm">— F-01 ✓ · F-02 ✓ · F-03 ✓ · F-04 · F-09 ✓</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">components/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">Header.tsx</span> &nbsp;<span class="ft-cm">— F-02 ✓ (punct/num toggles)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">ModeSelector.tsx</span> &nbsp;<span class="ft-cm">— F-01 ✓ (custom duration) · F-03 ✓ (sudden death) · F-04 (quotes mode)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">Caret.tsx</span> &nbsp;<span class="ft-cm">— F-08 ✓ (block/line/underline)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">WordDisplay.tsx</span> &nbsp;<span class="ft-cm">— F-08 ✓ (caretStyle prop thread)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">TypingArena.tsx</span> &nbsp;<span class="ft-cm">— Tab fix ✓ · F-08 ✓ (caretStyle prop)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">ResultsScreen.tsx</span> &nbsp;<span class="ft-cm">— F-03 ✓ (terminated state) · F-07 ✓ (consistency) · F-10 (heatmap)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">StatsDrawer.tsx</span> &nbsp;<span class="ft-cm">— F-05 ✓ · F-06 ✓ · F-08 ✓ (caret toggle) · F-09 ✓ (mute toggle)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">KeyboardHeatmap.tsx ★</span> &nbsp;<span class="ft-cm">— F-10 (pending)</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">hooks/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">useTypingEngine.ts</span> &nbsp;<span class="ft-cm">— F-03 ✓ · F-07 ✓ · F-09 ✓ (sound callbacks) · F-10</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">useStorage.ts</span> &nbsp;<span class="ft-cm">— F-08 ✓ (persist caret pref)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">usePunctuation.ts</span> &nbsp;<span class="ft-cm">— F-02 ✓ (new hook)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">useSuddenDeath.ts</span> &nbsp;<span class="ft-cm">— F-03 ✓ (new hook)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">useSound.ts ★</span> &nbsp;<span class="ft-cm">— F-09 ✓ (new hook, done)</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">utils/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">generateWords.ts</span> &nbsp;<span class="ft-cm">— F-02 ✓ (punct/num injection)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">calcStats.ts</span> &nbsp;<span class="ft-cm">— F-07 ✓ (calcConsistency added)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">quotes.ts ★</span> &nbsp;<span class="ft-cm">— F-04 (pending — EN + ID quote datasets)</span></div>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">Suggested Build Order</span>
+      </div>
+      <div class="note">9 of 10 features complete. Only F-10 (Keyboard Heatmap) remains.</div>
+      <table>
+        <thead>
+          <tr><th>Order</th><th>Feature</th><th>Why first?</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>Tab fix</strong> Accidental restart guard</td><td class="td-green">Tab only restarts when paused</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-01</strong> Custom Duration</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-02</strong> Punct &amp; Numbers Mode</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-03</strong> Sudden Death Mode</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-05</strong> WPM Trend Chart</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-06</strong> Accuracy Trend</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-07</strong> Consistency Score</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-08</strong> Caret Style Selector</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--text-dim)">—</td><td><strong>F-09</strong> Sound Effects</td><td class="td-green">Complete</td><td><span class="badge badge-done">✓ done</span></td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--accent)">1</td><td><strong>F-04</strong> Quotes Mode</td><td>Requires dataset curation + new mode logic</td><td>—</td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;color:var(--accent)">2</td><td><strong>F-10</strong> Keyboard Heatmap</td><td>Complex render, save for last</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:8px">Two features remain. Ready to implement when you are.</p>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function setScheme(s) {
+    document.documentElement.setAttribute('data-scheme', s);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s));
+    localStorage.setItem('doc-scheme', s);
+  }
+  const saved = localStorage.getItem('doc-scheme');
+  const preferred = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-scheme', preferred);
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.s === preferred));
+  });
+</script>
+</body>
+</html>

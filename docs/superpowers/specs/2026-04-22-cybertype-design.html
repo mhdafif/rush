@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYBERTYPE — Design Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #09090b;
+    --bg-card:   #18181b;
+    --border:    #27272a;
+    --border-dim:#1c1c1f;
+    --text:      #d4d4d8;
+    --text-muted:#71717a;
+    --text-dim:  #52525b;
+    --text-vdim: #3f3f46;
+    --orange:    #f97316;
+    --orange-6:  #ea580c;
+    --orange-9:  #7c2d12;
+    --orange-bg: rgba(234,88,12,0.08);
+    --orange-bd: rgba(234,88,12,0.25);
+    --red:       #ef4444;
+    --red-lt:    #f87171;
+    --green:     #4ade80;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image: radial-gradient(circle, rgba(234,88,12,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar nav */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 220px;
+    height: 100vh;
+    background: #111113;
+    border-right: 1px solid var(--border-dim);
+    padding: 28px 0;
+    overflow-y: auto;
+    z-index: 10;
+  }
+  .sidebar-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    color: var(--orange-6);
+    text-shadow: 0 0 10px rgba(234,88,12,0.4);
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border-dim);
+    display: block;
+    letter-spacing: -0.02em;
+  }
+  .sidebar-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    font-weight: 400;
+    display: block;
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+  .nav-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-vdim);
+    padding: 20px 20px 8px;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+    cursor: pointer;
+  }
+  .nav-link:hover { color: var(--orange); background: rgba(234,88,12,0.05); }
+  .nav-link .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-vdim);
+    min-width: 16px;
+  }
+
+  /* Main content */
+  .main { margin-left: 220px; padding: 48px 48px 80px; max-width: 900px; }
+
+  /* Page header */
+  .page-header { margin-bottom: 40px; }
+  .page-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--orange-6);
+    text-shadow: 0 0 20px rgba(234,88,12,0.3);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .page-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .meta-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 10px;
+  }
+
+  /* Sections */
+  .section { margin-bottom: 48px; scroll-margin-top: 24px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
+    background: var(--orange-bg);
+    border: 1px solid rgba(234,88,12,0.2);
+    border-radius: 5px;
+    padding: 2px 8px;
+    min-width: 32px;
+    text-align: center;
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .new-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--orange);
+    background: var(--orange-bg);
+    border: 1px solid rgba(234,88,12,0.3);
+    border-radius: 4px;
+    padding: 1px 6px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  thead tr { background: #111113; }
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    padding: 9px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border-dim);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.015); }
+  td code { color: var(--orange); }
+  .td-green { color: var(--green); }
+  .td-red { color: var(--red-lt); }
+
+  /* Code blocks */
+  pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #a1a1aa;
+    overflow-x: auto;
+    margin-bottom: 14px;
+  }
+  .kw  { color: #f97316; }   /* keyword / operator */
+  .fn  { color: #fb923c; }   /* function / variable */
+  .str { color: #a3e635; }   /* string */
+  .cm  { color: #3f3f46; }   /* comment */
+  .num { color: #60a5fa; }   /* number */
+  .tp  { color: #c084fc; }   /* type */
+
+  /* Inline code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(234,88,12,0.08);
+    color: var(--orange);
+    border: 1px solid rgba(234,88,12,0.15);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+
+  /* File tree */
+  .file-tree {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 2;
+  }
+  .ft-dir  { color: var(--orange); }
+  .ft-file { color: #a1a1aa; }
+  .ft-cm   { color: var(--text-vdim); }
+  .ft-new  { color: var(--orange); font-weight: 700; }
+
+  /* State machine flow */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .flow-state {
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .flow-state.idle    { border: 1px solid var(--text-vdim); color: var(--text-dim); }
+  .flow-state.running { border: 1px solid rgba(234,88,12,0.5); color: var(--orange); background: var(--orange-bg); }
+  .flow-state.paused  { border: 1px solid rgba(239,68,68,0.4); color: var(--red-lt); background: rgba(239,68,68,0.06); }
+  .flow-arrow { color: var(--orange); font-size: 13px; }
+  .flow-label { color: var(--text-dim); font-size: 10px; white-space: nowrap; }
+
+  /* Word state diagram */
+  .word-states {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .ws {
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    flex: 1;
+    min-width: 130px;
+  }
+  .ws-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-weight: 700; }
+  .ws-visual { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .ws-desc { font-size: 10px; color: var(--text-dim); }
+  .ws.pending  { background: #111113; border: 1px solid var(--border); }
+  .ws.pending .ws-label { color: var(--text-vdim); }
+  .ws.pending .ws-visual { color: var(--text-vdim); }
+  .ws.active   { background: rgba(39,39,42,0.5); border: 1px solid #52525b; }
+  .ws.active .ws-label { color: var(--text-muted); }
+  .ws.active .ws-visual { color: #e4e4e7; }
+  .ws.correct  { background: var(--orange-bg); border: 1px solid var(--orange-bd); }
+  .ws.correct .ws-label { color: var(--orange); }
+  .ws.correct .ws-visual { color: var(--orange); text-shadow: 0 0 8px rgba(234,88,12,0.5); }
+  .ws.error    { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.3); }
+  .ws.error .ws-label { color: var(--red-lt); }
+  .ws.error .ws-visual { color: var(--red); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(239,68,68,0.5); }
+
+  /* Color swatches */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .swatch { text-align: center; }
+  .swatch-box { width: 100%; height: 44px; border-radius: 7px; margin-bottom: 7px; border: 1px solid var(--border); }
+  .swatch-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
+  .swatch-hex  { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-vdim); }
+
+  /* Keyboard key */
+  kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: #18181b;
+    border: 1px solid #3f3f46;
+    border-bottom: 2px solid #3f3f46;
+    border-radius: 5px;
+    padding: 2px 7px;
+    color: var(--text-muted);
+  }
+
+  /* Info/note blocks */
+  .note {
+    background: rgba(234,88,12,0.05);
+    border-left: 3px solid var(--orange-6);
+    border-radius: 0 7px 7px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border-dim); margin: 32px 0; }
+
+  /* Subsection titles */
+  h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 20px 0 10px;
+  }
+
+  /* List */
+  ul.spec-list { padding-left: 18px; color: var(--text-muted); line-height: 2; font-size: 13px; }
+  ul.spec-list li strong { color: var(--text); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 24px 20px 60px; }
+    .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+    .swatches { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <span class="sidebar-logo">
+      CYBERTYPE
+      <span class="sidebar-sub">Design Spec · v3.0 · 2026-04-22</span>
+    </span>
+    <div class="nav-section-label">Contents</div>
+    <a class="nav-link" href="#s1"><span class="num">01</span> Screens</a>
+    <a class="nav-link" href="#s2"><span class="num">02</span> Test Modes</a>
+    <a class="nav-link" href="#s3"><span class="num">03</span> File Structure</a>
+    <a class="nav-link" href="#s4"><span class="num">04</span> App State</a>
+    <a class="nav-link" href="#s5"><span class="num">05</span> Word States</a>
+    <a class="nav-link" href="#s6"><span class="num">06</span> Word Lock</a>
+    <a class="nav-link" href="#s7"><span class="num">07</span> Pause / Resume</a>
+    <a class="nav-link" href="#s8"><span class="num">08</span> Timer Hook</a>
+    <a class="nav-link" href="#s9"><span class="num">09</span> WPM Calculation</a>
+    <a class="nav-link" href="#s10"><span class="num">10</span> Results Screen</a>
+    <a class="nav-link" href="#s11"><span class="num">11</span> Theme &amp; Colors</a>
+    <a class="nav-link" href="#s12"><span class="num">12</span> Keyboard Shortcuts</a>
+    <a class="nav-link" href="#s13"><span class="num">13</span> Focus Management</a>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-label">App Design Specification</div>
+      <div class="page-title">CYBERTYPE</div>
+      <div class="page-meta">
+        <span class="meta-badge">React 18 + Vite</span>
+        <span class="meta-badge">Tailwind CSS</span>
+        <span class="meta-badge">Recharts</span>
+        <span class="meta-badge">Cyberpunk Dark Theme</span>
+        <span class="meta-badge">2026-04-22</span>
+      </div>
+    </div>
+
+    <!-- 1. Screens -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">Screens</span>
+      </div>
+      <div class="note">Two views toggled by a React state variable in <code>App.jsx</code>. No router required.</div>
+      <table>
+        <thead><tr><th>State value</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>'typing'</code></td><td>Main typing test arena</td></tr>
+          <tr><td><code>'results'</code></td><td>Results screen shown after test ends</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2. Test Modes -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">Test Modes</span>
+      </div>
+      <div class="note">Both modes available. User selects via <code>ModeSelector</code> in the header before starting.</div>
+      <table>
+        <thead><tr><th>Mode</th><th>Options</th><th>End Condition</th></tr></thead>
+        <tbody>
+          <tr><td>Time</td><td>15s / 30s / 60s</td><td>Countdown reaches zero</td></tr>
+          <tr><td>Words</td><td>10 / 25 / 50 / 100 words</td><td>Last word is typed and confirmed with Space</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. File Structure -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">File Structure</span>
+      </div>
+      <div class="file-tree">
+        <div><span class="ft-dir">src/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">components/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">Header.jsx</span> &nbsp;<span class="ft-cm">— logo + ModeSelector</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">ModeSelector.jsx</span> &nbsp;<span class="ft-cm">— time/word toggle + duration picker</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">TypingArena.jsx</span> &nbsp;<span class="ft-cm">— typing box, hidden input, pause overlay</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">WordDisplay.jsx</span> &nbsp;<span class="ft-cm">— renders word list with per-word states</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">Caret.jsx</span> &nbsp;<span class="ft-cm">— blinking orange cursor</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">LiveStats.jsx</span> &nbsp;<span class="ft-cm">— live WPM + accuracy strip above arena</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">PauseOverlay.jsx</span> &nbsp;<span class="ft-cm">— blurred overlay shown when paused ★</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">ResultsScreen.jsx</span> &nbsp;<span class="ft-cm">— results view</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">WpmLineChart.jsx</span> &nbsp;<span class="ft-cm">— Recharts LineChart + custom hover tooltip</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">Footer.jsx</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">hooks/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">useTypingEngine.js</span> &nbsp;<span class="ft-cm">— typing logic + word-lock on space</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">useTimer.js</span> &nbsp;<span class="ft-cm">— countdown/count-up with pause/resume</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">useMousePause.js</span> &nbsp;<span class="ft-cm">— global mousemove + blur listener → triggers pause ★</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">utils/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">wordList.js</span> &nbsp;<span class="ft-cm">— ~1000 common English words array</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">generateWords.js</span> &nbsp;<span class="ft-cm">— shuffles and picks N words for a test</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">calcStats.js</span> &nbsp;<span class="ft-cm">— WPM and accuracy calculation functions</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">App.jsx</span> &nbsp;<span class="ft-cm">— view state + isPaused state</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">main.jsx</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">index.css</span> &nbsp;<span class="ft-cm">— Tailwind base + custom glow/caret/grid styles</span></div>
+        <div><span class="ft-file">tailwind.config.js</span></div>
+        <div><span class="ft-file">vite.config.js</span></div>
+        <div><span class="ft-file">index.html</span></div>
+      </div>
+    </div>
+
+    <!-- 4. App State -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">App State (App.jsx)</span>
+      </div>
+      <div class="card-grid-2" style="margin-bottom:14px;">
+        <div class="card">
+          <h3 style="margin-top:0;">State Variables</h3>
+          <pre><span class="fn">view</span>        <span class="cm">// 'typing' | 'results'</span>
+<span class="fn">mode</span>        <span class="cm">// 'time' | 'words'</span>
+<span class="fn">duration</span>    <span class="cm">// 15|30|60 or 10|25|50|100</span>
+<span class="fn">isPaused</span>    <span class="cm">// boolean</span>
+<span class="fn">testResult</span>  <span class="cm">// object | null</span></pre>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">testResult Shape</h3>
+          <pre>{
+  <span class="fn">wpm</span>:        <span class="tp">number</span>,
+  <span class="fn">rawWpm</span>:     <span class="tp">number</span>,
+  <span class="fn">accuracy</span>:   <span class="tp">number</span>,  <span class="cm">// 0–100</span>
+  <span class="fn">errors</span>:     <span class="tp">number</span>,
+  <span class="fn">duration</span>:   <span class="tp">number</span>,  <span class="cm">// seconds</span>
+  <span class="fn">wpmHistory</span>: <span class="tp">Array</span>&lt;{ <span class="fn">second</span>: <span class="tp">number</span>, <span class="fn">wpm</span>: <span class="tp">number</span> }&gt;,
+  <span class="fn">mode</span>:       <span class="str">'time'</span> | <span class="str">'words'</span>,
+}</pre>
+        </div>
+      </div>
+      <div class="note">
+        Test ends → <code>setTestResult(result)</code> + <code>setView('results')</code><br/>
+        Retry / New test → <code>setView('typing')</code> + reset all engine state
+      </div>
+    </div>
+
+    <!-- 5. Word States -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">Word States</span>
+      </div>
+      <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px;">Each word in the list has one of four states, rendered by <code>WordDisplay.jsx</code>:</p>
+      <div class="word-states">
+        <div class="ws pending">
+          <div class="ws-label">pending</div>
+          <div class="ws-visual">future</div>
+          <div class="ws-desc">Not yet reached. zinc-700, dim.</div>
+        </div>
+        <div class="ws active">
+          <div class="ws-label">active</div>
+          <div class="ws-visual">curren<span style="display:inline-block;width:2px;height:1em;background:#f97316;box-shadow:0 0 5px #f97316;vertical-align:text-bottom;"></span>t</div>
+          <div class="ws-desc">Currently typing. Editable.</div>
+        </div>
+        <div class="ws correct">
+          <div class="ws-label">locked-correct</div>
+          <div class="ws-visual">typed</div>
+          <div class="ws-desc">All chars matched. Immutable.</div>
+        </div>
+        <div class="ws error">
+          <div class="ws-label">locked-error</div>
+          <div class="ws-visual">mistyped</div>
+          <div class="ws-desc">Char mismatch. Immutable.</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>State</th><th>Color</th><th>Editable</th></tr></thead>
+        <tbody>
+          <tr><td><code>pending</code></td><td>zinc-700, dim</td><td>No — not yet reached</td></tr>
+          <tr><td><code>active</code></td><td>zinc-200, normal</td><td>Yes — currently typing</td></tr>
+          <tr><td><code>locked-correct</code></td><td>orange-500 + glow</td><td class="td-red">No — immutable</td></tr>
+          <tr><td><code>locked-error</code></td><td>red-500 + underline</td><td class="td-red">No — immutable</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 6. Word Lock -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">Word Lock Behavior</span>
+      </div>
+      <div class="note">
+        When Space is pressed: (1) evaluate typed input vs expected word, (2) set state to <code>locked-correct</code> or <code>locked-error</code>, (3) advance cursor. The locked word <strong>cannot be edited</strong> — backspace cannot reach it.
+      </div>
+      <h3>Backspace Rules</h3>
+      <table>
+        <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Cursor inside word (typed chars exist)</td><td class="td-green">✓ Delete last typed char in current word</td></tr>
+          <tr><td>Cursor at word start (nothing typed yet)</td><td class="td-red">✗ Blocked — no-op, cannot reach previous word</td></tr>
+          <tr><td>Previous word is locked</td><td class="td-red">✗ Blocked — locked words are immutable</td></tr>
+        </tbody>
+      </table>
+      <h3>handleKeyDown Logic</h3>
+      <pre><span class="cm">// useTypingEngine — handleKeyDown</span>
+<span class="kw">if</span> (isPaused || phase !== <span class="str">'running'</span>) <span class="kw">return</span>
+
+<span class="kw">if</span> (key === <span class="str">' '</span>) {
+  <span class="fn">lockCurrentWord</span>()   <span class="cm">// → 'locked-correct' or 'locked-error'</span>
+  <span class="kw">if</span> (isLastWord && mode === <span class="str">'words'</span>) {
+    <span class="fn">endTest</span>()           <span class="cm">// Space on final word ends the test immediately</span>
+  } <span class="kw">else</span> {
+    <span class="fn">advanceToNextWord</span>()
+  }
+}
+
+<span class="kw">if</span> (key === <span class="str">'Backspace'</span>) {
+  <span class="kw">if</span> (currentInput.length === <span class="num">0</span>) <span class="kw">return</span>  <span class="cm">// blocked at word boundary</span>
+  <span class="fn">deleteLastChar</span>()
+}</pre>
+    </div>
+
+    <!-- 7. Pause / Resume -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">Pause / Resume Behavior</span>
+        <span class="new-badge">★ New</span>
+      </div>
+      <div class="note">Pause only activates during an active test (phase = <code>running</code>). Has no effect during idle or results view.</div>
+
+      <h3>State Machine</h3>
+      <div class="flow">
+        <div class="flow-state idle">idle</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-label">first keypress</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-state running">running</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-label">mouse moves or window blur</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-state paused">paused</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-label">click arena or any key</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-state running">running</div>
+      </div>
+
+      <div class="card-grid-2">
+        <div class="card">
+          <h3 style="margin-top:0;">When Paused</h3>
+          <ul class="spec-list">
+            <li>Timer frozen — no tick</li>
+            <li>Keydown events ignored by engine</li>
+            <li>Arena content: <code>filter: blur(5px)</code></li>
+            <li><code>PauseOverlay</code> renders over arena</li>
+            <li>Live stats strip dims to low opacity</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">To Resume</h3>
+          <ul class="spec-list">
+            <li>Click anywhere on the typing arena</li>
+            <li>Press any typeable key</li>
+            <li>Both re-focus the hidden input</li>
+            <li>Timer resumes from frozen value</li>
+            <li>Blur transitions out via CSS <code>transition</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>useMousePause Hook</h3>
+      <pre><span class="fn">useEffect</span>(() => {
+  <span class="kw">const</span> <span class="fn">handleMouseMove</span> = () => {
+    <span class="kw">if</span> (phase === <span class="str">'running'</span>) <span class="fn">setIsPaused</span>(<span class="kw">true</span>)
+  }
+  <span class="kw">const</span> <span class="fn">handleBlur</span> = () => {
+    <span class="kw">if</span> (phase === <span class="str">'running'</span>) <span class="fn">setIsPaused</span>(<span class="kw">true</span>)  <span class="cm">// tab/window loses focus</span>
+  }
+  window.<span class="fn">addEventListener</span>(<span class="str">'mousemove'</span>, handleMouseMove)
+  window.<span class="fn">addEventListener</span>(<span class="str">'blur'</span>, handleBlur)
+  <span class="kw">return</span> () => {
+    window.<span class="fn">removeEventListener</span>(<span class="str">'mousemove'</span>, handleMouseMove)
+    window.<span class="fn">removeEventListener</span>(<span class="str">'blur'</span>, handleBlur)
+  }
+}, [phase])
+
+<span class="cm">// isPaused is passed to both useTimer and useTypingEngine — both halt when true</span></pre>
+    </div>
+
+    <!-- 8. Timer Hook -->
+    <div class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <span class="section-title">Timer Hook (useTimer.js)</span>
+      </div>
+      <table>
+        <thead><tr><th>Mode</th><th>Behavior</th></tr></thead>
+        <tbody>
+          <tr><td>Time</td><td>Counts down from <code>duration</code>. Fires <code>onEnd</code> when it reaches 0. Pauses when <code>isPaused = true</code>.</td></tr>
+          <tr><td>Words</td><td>Counts up from 0. Stops when engine signals test complete. Pauses when <code>isPaused = true</code>.</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        Uses <code>setInterval</code> cleared on pause and on unmount. Every second tick the engine records a <code>wpmHistory</code> snapshot.
+      </div>
+    </div>
+
+    <!-- 9. WPM Calculation -->
+    <div class="section" id="s9">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <span class="section-title">WPM Calculation</span>
+      </div>
+      <pre><span class="cm">// elapsedSeconds mapping:</span>
+<span class="cm">//   time mode  → duration - remainingSeconds  (e.g. 60 - 38 = 22s elapsed)</span>
+<span class="cm">//   words mode → count-up timer value</span>
+
+<span class="fn">wpm</span>      = (correctChars / <span class="num">5</span>) / (elapsedSeconds / <span class="num">60</span>)
+<span class="fn">rawWpm</span>   = (totalTypedChars / <span class="num">5</span>) / (elapsedSeconds / <span class="num">60</span>)
+<span class="fn">accuracy</span> = (correctChars / totalTypedChars) * <span class="num">100</span></pre>
+      <div class="note">
+        <strong>Retry Same:</strong> <code>testResult</code>, <code>wpmHistory</code>, and all engine state are fully reset before the new test begins. The same word list array is reused.
+      </div>
+    </div>
+
+    <!-- 10. Results Screen -->
+    <div class="section" id="s10">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <span class="section-title">Results Screen</span>
+      </div>
+      <table>
+        <thead><tr><th>Element</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td>WPM (large)</td><td>Orange, glowing, prominent — primary stat</td></tr>
+          <tr><td>Accuracy</td><td>Secondary stat, zinc text</td></tr>
+          <tr><td>Errors</td><td>Red value (<code>red-400</code>)</td></tr>
+          <tr><td>Raw WPM</td><td>Secondary stat</td></tr>
+          <tr><td>Duration</td><td>Seconds elapsed</td></tr>
+          <tr><td>WPM Line Chart</td><td>Recharts <code>LineChart</code>, orange line + gradient area fill</td></tr>
+          <tr><td>Chart tooltip</td><td>Custom component: dark card, orange border, shows "Second N" + WPM on hover</td></tr>
+          <tr><td>Retry Same</td><td>Restarts with same word list + mode/duration, all state reset</td></tr>
+          <tr><td>New Test</td><td>Generates fresh word list, same mode/duration</td></tr>
+        </tbody>
+      </table>
+
+      <h3>WpmLineChart.jsx — Recharts Config</h3>
+      <ul class="spec-list">
+        <li>Components used: <code>LineChart</code>, <code>Line</code>, <code>Area</code>, <code>XAxis</code>, <code>YAxis</code>, <code>Tooltip</code>, <code>ResponsiveContainer</code></li>
+        <li>Custom <code>Tooltip</code> component: dark card, orange border, shows <code>second</code> and <code>wpm</code></li>
+        <li>Line stroke: <code>#f97316</code> (orange-500), strokeWidth 2, rounded caps</li>
+        <li>Area fill: linear gradient orange → transparent (top to bottom)</li>
+        <li>Dot on hover: orange fill with drop-shadow glow filter</li>
+        <li>Vertical reference line on hover: dashed orange at low opacity</li>
+      </ul>
+    </div>
+
+    <!-- 11. Theme & Colors -->
+    <div class="section" id="s11">
+      <div class="section-header">
+        <span class="section-num">11</span>
+        <span class="section-title">Theme &amp; Color Tokens</span>
+      </div>
+      <div class="swatches">
+        <div class="swatch">
+          <div class="swatch-box" style="background:#09090b;"></div>
+          <div class="swatch-name">zinc-950</div>
+          <div class="swatch-hex">#09090b · background</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-box" style="background:#18181b;"></div>
+          <div class="swatch-name">zinc-900</div>
+          <div class="swatch-hex">#18181b · cards</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-box" style="background:#ea580c; box-shadow:0 0 12px rgba(234,88,12,0.5);"></div>
+          <div class="swatch-name" style="color:#f97316;">orange-600</div>
+          <div class="swatch-hex">#ea580c · primary</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-box" style="background:#ef4444;"></div>
+          <div class="swatch-name" style="color:#f87171;">red-500</div>
+          <div class="swatch-hex">#ef4444 · errors</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Token</th><th>Hex</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td>zinc-950</td><td><code>#09090b</code></td><td>Page background</td></tr>
+          <tr><td>zinc-900</td><td><code>#18181b</code></td><td>Cards, panels</td></tr>
+          <tr><td>zinc-800</td><td><code>#27272a</code></td><td>Borders</td></tr>
+          <tr><td>zinc-700</td><td><code>#3f3f46</code></td><td>Pending word text</td></tr>
+          <tr><td>orange-600</td><td><code>#ea580c</code></td><td>Primary accent, progress bar</td></tr>
+          <tr><td>orange-500</td><td><code>#f97316</code></td><td>Caret, locked-correct text, chart line</td></tr>
+          <tr><td>red-500</td><td><code>#ef4444</code></td><td>Locked-error text</td></tr>
+          <tr><td>red-400</td><td><code>#f87171</code></td><td>Error count in results</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Custom CSS (index.css)</h3>
+      <pre><span class="fn">.hud-grid</span> {
+  background-image: radial-gradient(circle, rgba(<span class="num">234</span>,<span class="num">88</span>,<span class="num">12</span>,<span class="num">0.05</span>) <span class="num">1</span>px, transparent <span class="num">1</span>px);
+  background-size: <span class="num">30</span>px <span class="num">30</span>px;
+}
+<span class="fn">.text-glow</span> {
+  text-shadow: <span class="num">0</span> <span class="num">0</span> <span class="num">10</span>px rgba(<span class="num">234</span>, <span class="num">88</span>, <span class="num">12</span>, <span class="num">0.5</span>);
+}
+<span class="fn">.caret</span> {
+  width: <span class="num">2</span>px;
+  background-color: <span class="str">#f97316</span>;
+  box-shadow: <span class="num">0</span> <span class="num">0</span> <span class="num">8</span>px <span class="str">#f97316</span>;
+  animation: blink <span class="num">1</span>s infinite steps(<span class="num">2</span>);
+}
+<span class="kw">@keyframes</span> blink {
+  <span class="num">0</span>%   { opacity: <span class="num">1</span>; }
+  <span class="num">100</span>% { opacity: <span class="num">0</span>; }
+}</pre>
+    </div>
+
+    <!-- 12. Keyboard Shortcuts -->
+    <div class="section" id="s12">
+      <div class="section-header">
+        <span class="section-num">12</span>
+        <span class="section-title">Keyboard Shortcuts</span>
+      </div>
+      <table>
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Any typeable key</td><td>Start test (if idle) / Resume (if paused) / Type char</td></tr>
+          <tr><td><kbd>Space</kbd></td><td>Lock current word, advance to next (or end test on last word in words mode)</td></tr>
+          <tr><td><kbd>Backspace</kbd></td><td>Delete last char in current word only</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>Restart same test — reset engine, reuse same word list</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Reset to idle state</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 13. Focus Management -->
+    <div class="section" id="s13">
+      <div class="section-header">
+        <span class="section-num">13</span>
+        <span class="section-title">Focus Management</span>
+      </div>
+      <ul class="spec-list">
+        <li>A hidden <code>&lt;input&gt;</code> inside <code>TypingArena</code> captures all keyboard events</li>
+        <li>Clicking the arena triggers <code>.focus()</code> on the hidden input</li>
+        <li>On resume (click or keypress while paused), hidden input is re-focused</li>
+        <li>The word display area is <code>user-select: none</code> and <code>pointer-events: none</code></li>
+      </ul>
+    </div>
+
+    <hr/>
+    <div style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-vdim); padding-bottom:8px;">
+      CYBERTYPE · Design Spec v3.0 · 2026-04-22
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

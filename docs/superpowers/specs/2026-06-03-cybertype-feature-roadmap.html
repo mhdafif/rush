@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" data-scheme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYBERTYPE Feature Roadmap — Feature Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-scheme="light"]) { --bg:#09090b; --bg-card:#18181b; --border:#27272a; --border-dim:#1c1c1f; --text:#d4d4d8; --text-muted:#71717a; --text-dim:#52525b; --text-vdim:#3f3f46; --accent:#f97316; --accent-6:#ea580c; --accent-9:#7c2d12; --accent-bg:rgba(234,88,12,0.08); --accent-bd:rgba(234,88,12,0.25); --red:#ef4444; --red-lt:#f87171; --green:#4ade80; --sidebar-bg:#111113; --pre-bg:#09090b; --kbd-bg:#18181b; --kbd-border:#3f3f46; --dot-color:rgba(234,88,12,0.04); --glow:0 0 20px rgba(234,88,12,0.3); }
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-scheme="dark"]) { --bg:#f8fafc; --bg-card:#ffffff; --border:#e2e8f0; --border-dim:#f1f5f9; --text:#1e293b; --text-muted:#64748b; --text-dim:#94a3b8; --text-vdim:#cbd5e1; --accent:#6366f1; --accent-6:#4f46e5; --accent-9:#312e81; --accent-bg:rgba(99,102,241,0.08); --accent-bd:rgba(99,102,241,0.25); --red:#ef4444; --red-lt:#f87171; --green:#22c55e; --sidebar-bg:#f1f5f9; --pre-bg:#f8fafc; --kbd-bg:#f1f5f9; --kbd-border:#e2e8f0; --dot-color:rgba(99,102,241,0.05); --glow:none; }
+  }
+  :root[data-scheme="dark"] { --bg:#09090b; --bg-card:#18181b; --border:#27272a; --border-dim:#1c1c1f; --text:#d4d4d8; --text-muted:#71717a; --text-dim:#52525b; --text-vdim:#3f3f46; --accent:#f97316; --accent-6:#ea580c; --accent-9:#7c2d12; --accent-bg:rgba(234,88,12,0.08); --accent-bd:rgba(234,88,12,0.25); --red:#ef4444; --red-lt:#f87171; --green:#4ade80; --sidebar-bg:#111113; --pre-bg:#09090b; --kbd-bg:#18181b; --kbd-border:#3f3f46; --dot-color:rgba(234,88,12,0.04); --glow:0 0 20px rgba(234,88,12,0.3); }
+  :root[data-scheme="light"] { --bg:#f8fafc; --bg-card:#ffffff; --border:#e2e8f0; --border-dim:#f1f5f9; --text:#1e293b; --text-muted:#64748b; --text-dim:#94a3b8; --text-vdim:#cbd5e1; --accent:#6366f1; --accent-6:#4f46e5; --accent-9:#312e81; --accent-bg:rgba(99,102,241,0.08); --accent-bd:rgba(99,102,241,0.25); --red:#ef4444; --red-lt:#f87171; --green:#22c55e; --sidebar-bg:#f1f5f9; --pre-bg:#f8fafc; --kbd-bg:#f1f5f9; --kbd-border:#e2e8f0; --dot-color:rgba(99,102,241,0.05); --glow:none; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter', sans-serif; font-size:14px; line-height:1.6; min-height:100vh; background-image:radial-gradient(circle, var(--dot-color) 1px, transparent 1px); background-size:30px 30px; }
+  .theme-switcher { position:fixed; top:16px; right:16px; z-index:100; display:flex; gap:6px; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:5px 8px; }
+  .theme-btn { width:20px; height:20px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:border-color .15s, transform .1s; }
+  .theme-btn:hover { transform:scale(1.15); }
+  .theme-btn.active { border-color:var(--accent); }
+  .theme-btn[data-s="dark"] { background:#09090b; outline:1px solid #3f3f46; outline-offset:1px; }
+  .theme-btn[data-s="light"] { background:#f8fafc; outline:1px solid #e2e8f0; outline-offset:1px; }
+  .layout { display:flex; min-height:100vh; }
+  .sidebar { position:fixed; top:0; left:0; width:220px; height:100vh; background:var(--sidebar-bg); border-right:1px solid var(--border-dim); padding:28px 0; overflow-y:auto; z-index:10; }
+  .sidebar-logo { font-family:'Space Grotesk', sans-serif; font-weight:900; font-size:18px; color:var(--accent-6); text-shadow:var(--glow); padding:0 20px 24px; border-bottom:1px solid var(--border-dim); display:block; letter-spacing:-.02em; }
+  .sidebar-sub { font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--text-dim); font-weight:400; display:block; margin-top:3px; letter-spacing:.05em; }
+  .nav-section-label { font-family:'JetBrains Mono', monospace; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; color:var(--text-vdim); padding:20px 20px 8px; }
+  .nav-link { display:flex; align-items:center; gap:10px; padding:7px 20px; font-size:13px; color:var(--text-muted); text-decoration:none; transition:color .15s, background .15s; cursor:pointer; }
+  .nav-link:hover { color:var(--accent); background:var(--accent-bg); }
+  .nav-link .num { font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--text-vdim); min-width:16px; }
+  .main { margin-left:220px; padding:48px 48px 80px; max-width:1000px; width:100%; }
+  .page-header { margin-bottom:40px; }
+  .page-label { font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.2em; color:var(--accent); margin-bottom:10px; }
+  .page-title { font-family:'Space Grotesk', sans-serif; font-size:2.4rem; font-weight:900; color:var(--accent-6); text-shadow:var(--glow); letter-spacing:-.02em; line-height:1; margin-bottom:10px; }
+  .page-meta { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  .meta-badge, .new-badge { font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--accent); background:var(--accent-bg); border:1px solid var(--accent-bd); border-radius:999px; padding:3px 8px; }
+  .section { margin-bottom:34px; scroll-margin-top:24px; }
+  .section-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .section-num { font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--accent); border:1px solid var(--accent-bd); border-radius:6px; padding:2px 7px; }
+  .section-title { font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--text); }
+  .card-grid-2 { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px; margin:14px 0; }
+  .card-grid-3 { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin:14px 0; }
+  .card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; color:var(--text-muted); }
+  .card strong { color:var(--text); }
+  .note { background:var(--accent-bg); border-left:3px solid var(--accent-6); border-radius:0 7px 7px 0; padding:10px 14px; font-size:13px; color:var(--text-muted); margin-bottom:14px; }
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--border-dim); vertical-align:top; }
+  th { font-family:'JetBrains Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--text-dim); }
+  td { color:var(--text-muted); }
+  tr:last-child td { border-bottom:none; }
+  code, .kbd, kbd { font-family:'JetBrains Mono', monospace; font-size:12px; background:var(--kbd-bg); border:1px solid var(--kbd-border); border-radius:5px; padding:1px 5px; color:var(--text); }
+  pre { background:var(--pre-bg); border:1px solid var(--border); border-radius:12px; padding:14px; overflow-x:auto; color:var(--text-muted); margin:14px 0; }
+  .file-tree { font-family:'JetBrains Mono', monospace; font-size:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px; color:var(--text-muted); margin:14px 0; }
+  .ft-dir { color:var(--accent); }
+  .ft-file { color:var(--text); }
+  .ft-new { color:var(--green); }
+  .ft-cm { color:var(--text-dim); }
+  .flow { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:14px 0; }
+  .flow-state { font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:999px; padding:4px 9px; border:1px solid var(--border); background:var(--bg-card); }
+  .flow-state.idle { color:var(--text-muted); }
+  .flow-state.running { color:var(--green); }
+  .flow-state.paused { color:var(--accent); }
+  .flow-arrow, .flow-label { color:var(--text-dim); font-size:12px; }
+  ul.spec-list { padding-left:18px; color:var(--text-muted); line-height:2; font-size:13px; }
+  ul.spec-list li strong { color:var(--text); }
+  .td-green { color:var(--green); }
+  .td-red { color:var(--red-lt); }
+  @media (max-width:768px) { .sidebar { display:none; } .main { margin-left:0; padding:24px 20px 60px; } .card-grid-2, .card-grid-3 { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="theme-switcher">
+  <div class="theme-btn" data-s="dark" title="Dark" onclick="setScheme('dark')"></div>
+  <div class="theme-btn" data-s="light" title="Light" onclick="setScheme('light')"></div>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <span class="sidebar-logo">CYBERTYPE Feature Roadmap<span class="sidebar-sub">Feature Plan · v1.0 · 2026-06-03</span></span>
+    <div class="nav-section-label">Contents</div>
+    <a class="nav-link" href="#s1"><span class="num">01</span> Overview</a>
+    <a class="nav-link" href="#s2"><span class="num">02</span> Current Baseline</a>
+    <a class="nav-link" href="#s3"><span class="num">03</span> Low Effort</a>
+    <a class="nav-link" href="#s4"><span class="num">04</span> Medium Effort</a>
+    <a class="nav-link" href="#s5"><span class="num">05</span> Large Features</a>
+    <a class="nav-link" href="#s6"><span class="num">06</span> Build Order</a>
+    <a class="nav-link" href="#s7"><span class="num">07</span> File Map</a>
+    <a class="nav-link" href="#s8"><span class="num">08</span> Verification</a>
+  </nav>
+  <main class="main">
+    <div class="page-header">
+      <div class="page-label">Feature Plan</div>
+      <div class="page-title">CYBERTYPE Feature Roadmap</div>
+      <div class="page-meta">
+        <span class="meta-badge">2026-06-03</span>
+        <span class="meta-badge">React + Vite</span>
+        <span class="meta-badge">Zustand</span>
+        <span class="meta-badge">Low-risk first</span>
+      </div>
+    </div>
+
+    <div class="section" id="s1">
+      <div class="section-header"><span class="section-num">01</span><span class="section-title">Overview</span></div>
+      <div class="note">Goal: extend CYBERTYPE with useful, incremental features while preserving the current clean SPA architecture.</div>
+      <div class="card-grid-3">
+        <div class="card"><strong>First priority</strong><br/>Improve local history and personal best handling. These are visible, useful, and low-risk.</div>
+        <div class="card"><strong>Second priority</strong><br/>Add practice-oriented improvements that use data already collected by the typing engine.</div>
+        <div class="card"><strong>Third priority</strong><br/>Add personalization and retention features once the core stats model is stronger.</div>
+      </div>
+    </div>
+
+    <div class="section" id="s2">
+      <div class="section-header"><span class="section-num">02</span><span class="section-title">Current Baseline</span></div>
+      <table>
+        <thead><tr><th>Area</th><th>Current State</th><th>Implication</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td>Vite + React SPA</td><td>No Next.js routes or server components are involved.</td></tr>
+          <tr><td>State</td><td>Zustand stores in <code>src/store/</code></td><td>New persistent settings/history should stay in <code>settingsStore</code>.</td></tr>
+          <tr><td>Data</td><td>Local/generated only</td><td>React Query is not needed unless API/server state is introduced later.</td></tr>
+          <tr><td>Modes</td><td>time, words, punct, nums, quotes</td><td>Stats and bests should be mode-aware.</td></tr>
+          <tr><td>Results</td><td>WPM, accuracy, consistency, errors, raw WPM, chart, heatmap</td><td>There is enough data to build better history and practice flows.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section" id="s3">
+      <div class="section-header"><span class="section-num">03</span><span class="section-title">Low Effort Features</span><span class="new-badge">start here</span></div>
+      <table>
+        <thead><tr><th>Feature</th><th>Value</th><th>Implementation Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Clear history option</strong></td><td>Lets users reset local stats safely.</td><td>Add <code>clearHistory</code> action in <code>settingsStore</code>. Add a button in <code>StatsDrawer</code> with a confirmation step. Decide whether it clears only <code>history</code> or both <code>history</code> and <code>best</code>.</td></tr>
+          <tr><td><strong>Per-mode personal bests</strong></td><td>Prevents a 15s time score from competing with quotes or 100-word tests.</td><td>Replace single <code>best</code> with a keyed best map by <code>mode:duration:lang</code> or similar. Keep migration minimal because the app is local-only.</td></tr>
+          <tr><td><strong>Word progress indicator</strong></td><td>Makes words and quotes modes clearer.</td><td>Expose current word index and total word count from typing state, then render <code>12 / 50</code> in the HUD.</td></tr>
+          <tr><td><strong>Increase history cap</strong></td><td>Makes charts and trends more meaningful.</td><td>Change <code>MAX_HISTORY</code> from 5 to a larger number such as 50. Keep drawer display capped or scrollable.</td></tr>
+          <tr><td><strong>Export history</strong></td><td>Useful for backup and manual analysis.</td><td>Add JSON first. CSV can come later. This should be a simple browser download from stored history.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section" id="s4">
+      <div class="section-header"><span class="section-num">04</span><span class="section-title">Medium Effort Features</span></div>
+      <div class="card-grid-2">
+        <div class="card"><strong>Practice weak keys mode</strong><br/>Use the existing error heatmap data to generate drills focused on keys the user misses most often.</div>
+        <div class="card"><strong>More themes / light mode</strong><br/>Add a persisted theme setting and CSS variable sets. Start with current cyber orange, light mode, and one alternate accent.</div>
+        <div class="card"><strong>Font size / density settings</strong><br/>Let users tune word display size and spacing without changing typing logic.</div>
+        <div class="card"><strong>More languages</strong><br/>Add additional word lists and quotes. Spanish, French, and German are good candidates.</div>
+        <div class="card"><strong>Zen mode</strong><br/>Hide live stats while typing and only show results after completion.</div>
+        <div class="card"><strong>Full history table</strong><br/>Add filtering by mode, language, date, and personal-best status.</div>
+      </div>
+    </div>
+
+    <div class="section" id="s5">
+      <div class="section-header"><span class="section-num">05</span><span class="section-title">Large Features</span></div>
+      <ul class="spec-list">
+        <li><strong>Daily streaks:</strong> Track practice days using local dates and history timestamps.</li>
+        <li><strong>Achievements / XP:</strong> Reward milestones like first 100 WPM, 95% accuracy, or 7-day streak.</li>
+        <li><strong>Keyboard layout options:</strong> Support QWERTY, Colemak, Dvorak, and maybe custom layouts for heatmap rendering.</li>
+        <li><strong>Backspace across word boundary:</strong> Improve typing ergonomics but requires careful changes to the word state machine.</li>
+        <li><strong>Accounts / cloud sync:</strong> Only consider this after the local stats model stabilizes.</li>
+      </ul>
+    </div>
+
+    <div class="section" id="s6">
+      <div class="section-header"><span class="section-num">06</span><span class="section-title">Recommended Build Order</span></div>
+      <div class="flow">
+        <div class="flow-state idle">clear history</div><span class="flow-arrow">→</span>
+        <div class="flow-state idle">history cap</div><span class="flow-arrow">→</span>
+        <div class="flow-state running">per-mode bests</div><span class="flow-arrow">→</span>
+        <div class="flow-state running">word progress</div><span class="flow-arrow">→</span>
+        <div class="flow-state paused">practice weak keys</div>
+      </div>
+      <table>
+        <thead><tr><th>Phase</th><th>Features</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>Phase 1</td><td>Clear history, increase history cap</td><td>Small store/UI changes with immediate user value.</td></tr>
+          <tr><td>Phase 2</td><td>Per-mode personal bests, history display polish</td><td>Improves stats correctness before adding more stats features.</td></tr>
+          <tr><td>Phase 3</td><td>Word progress indicator, export history</td><td>Low-risk quality-of-life improvements.</td></tr>
+          <tr><td>Phase 4</td><td>Practice weak keys mode</td><td>Uses existing error data to make the app more actionable.</td></tr>
+          <tr><td>Phase 5</td><td>Themes, zen mode, streaks</td><td>Personalization and retention after core stats are solid.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section" id="s7">
+      <div class="section-header"><span class="section-num">07</span><span class="section-title">File Map</span></div>
+      <div class="file-tree">
+        <div><span class="ft-dir">src/store/settings/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">ISettingsStore.ts</span> <span class="ft-cm">— add/adjust history, bests, and action types</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">settingsStore.ts</span> <span class="ft-cm">— implement clear history, best map, history cap</span></div>
+        <div><span class="ft-dir">src/store/typing/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">ITypingStore.ts</span> <span class="ft-cm">— expose progress if not already available</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">typingStore.ts</span> <span class="ft-cm">— keep current word/total word state accurate</span></div>
+        <div><span class="ft-dir">src/components/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">StatsDrawer.tsx</span> <span class="ft-cm">— clear/export history controls and expanded table</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">ResultsScreen.tsx</span> <span class="ft-cm">— display correct per-mode best</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">TestHUD.tsx</span> <span class="ft-cm">— add word progress indicator</span></div>
+      </div>
+      <div class="note">Keep following the current architecture: component-level presentation in component files, business logic in co-located <code>use*.tsx</code> hooks, persisted client state in Zustand.</div>
+    </div>
+
+    <div class="section" id="s8">
+      <div class="section-header"><span class="section-num">08</span><span class="section-title">Verification</span></div>
+      <ul class="spec-list">
+        <li><strong>Run tests:</strong> Use the project test command from <code>package.json</code> after each feature.</li>
+        <li><strong>Manual history test:</strong> Complete multiple tests, reload the page, confirm history persists, clear it, reload again.</li>
+        <li><strong>Manual bests test:</strong> Complete different modes/durations and confirm bests do not overwrite unrelated categories.</li>
+        <li><strong>Manual HUD test:</strong> Check time, words, and quotes modes for correct progress display.</li>
+        <li><strong>Regression pass:</strong> Verify restart, retry same, new test, pause, sudden death, and mute still work.</li>
+      </ul>
+      <pre><code>npm test
+npm run build</code></pre>
+    </div>
+  </main>
+</div>
+<script>
+  function setScheme(s) {
+    document.documentElement.setAttribute('data-scheme', s);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s));
+    localStorage.setItem('doc-scheme', s);
+  }
+  const saved = localStorage.getItem('doc-scheme');
+  const preferred = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-scheme', preferred);
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.s === preferred));
+  });
+</script>
+</body>
+</html>

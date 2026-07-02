@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Doc Theme Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0f11; color: #d4d4d8; font-family: 'Inter', sans-serif; font-size: 14px; padding: 40px; }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: #71717a; margin-bottom: 8px; letter-spacing: 0.05em; text-transform: uppercase; font-size: 11px; }
+  .subtitle { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #52525b; margin-bottom: 40px; }
+  .themes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; }
+
+  /* ─── SHARED DOC SHELL ─── */
+  .doc {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+  .doc:hover { transform: translateY(-3px); }
+  .doc.dark-theme { border-color: #27272a; }
+  .doc.option-a:hover { border-color: #4f46e5; }
+  .doc.option-b:hover { border-color: #059669; }
+  .doc.option-c:hover { border-color: #7c3aed; }
+
+  .doc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 10px 16px;
+    text-align: center;
+  }
+
+  /* ─── DARK THEME (existing) ─── */
+  .dark-doc { background: #09090b; }
+  .dark-doc .doc-sidebar {
+    width: 100%;
+    background: #111113;
+    border-bottom: 1px solid #1c1c1f;
+    padding: 12px 14px;
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .dark-doc .nav-item {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: #52525b; padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .dark-doc .nav-item.active { color: #f97316; background: rgba(234,88,12,0.1); }
+  .dark-doc .doc-body { padding: 16px; }
+  .dark-doc .doc-logo {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 900;
+    font-size: 15px; color: #ea580c;
+    text-shadow: 0 0 10px rgba(234,88,12,0.4);
+    margin-bottom: 2px;
+  }
+  .dark-doc .doc-meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #52525b; margin-bottom: 14px;
+  }
+  .dark-doc .section-num {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+    color: #f97316; background: rgba(234,88,12,0.08); border: 1px solid rgba(234,88,12,0.2);
+    border-radius: 4px; padding: 1px 6px; margin-right: 6px;
+  }
+  .dark-doc .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: #d4d4d8; }
+  .dark-doc .card {
+    background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 10px 12px; margin: 10px 0;
+  }
+  .dark-doc table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }
+  .dark-doc th { font-family: 'JetBrains Mono', monospace; font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: #52525b; padding: 5px 8px; border-bottom: 1px solid #27272a; text-align: left; }
+  .dark-doc td { padding: 5px 8px; border-bottom: 1px solid #1c1c1f; color: #71717a; }
+  .dark-doc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #f97316; background: rgba(234,88,12,0.08); border-radius: 3px; padding: 0 4px; }
+  .dark-doc pre { background: #000; border: 1px solid #27272a; border-radius: 6px; padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #71717a; line-height: 1.7; margin-top: 8px; }
+  .dark-doc .kw { color: #f97316; } .dark-doc .str { color: #a3e635; } .dark-doc .cm { color: #3f3f46; }
+  .dark-doc .badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 8px; padding: 1px 6px; border-radius: 3px; border: 1px solid #27272a; color: #52525b; margin-right: 3px; }
+
+  /* ─── OPTION A: Indigo / Slate ─── */
+  .a-doc { background: #f8fafc; }
+  .a-doc .doc-sidebar {
+    width: 100%; background: #f1f5f9; border-bottom: 1px solid #e2e8f0;
+    padding: 12px 14px; display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .a-doc .nav-item { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #94a3b8; padding: 2px 7px; border-radius: 4px; }
+  .a-doc .nav-item.active { color: #4f46e5; background: rgba(79,70,229,0.08); }
+  .a-doc .doc-body { padding: 16px; }
+  .a-doc .doc-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 15px; color: #4f46e5; margin-bottom: 2px; }
+  .a-doc .doc-meta { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #94a3b8; margin-bottom: 14px; }
+  .a-doc .section-num {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+    color: #4f46e5; background: rgba(79,70,229,0.08); border: 1px solid rgba(79,70,229,0.2);
+    border-radius: 4px; padding: 1px 6px; margin-right: 6px;
+  }
+  .a-doc .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: #1e293b; }
+  .a-doc .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .a-doc table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }
+  .a-doc th { font-family: 'JetBrains Mono', monospace; font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; padding: 5px 8px; border-bottom: 1px solid #e2e8f0; text-align: left; background: #f8fafc; }
+  .a-doc td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; color: #64748b; }
+  .a-doc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #4f46e5; background: rgba(79,70,229,0.07); border-radius: 3px; padding: 0 4px; }
+  .a-doc pre { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #64748b; line-height: 1.7; margin-top: 8px; }
+  .a-doc .kw { color: #4f46e5; } .a-doc .str { color: #059669; } .a-doc .cm { color: #94a3b8; }
+  .a-doc .badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 8px; padding: 1px 6px; border-radius: 3px; border: 1px solid #e2e8f0; color: #94a3b8; margin-right: 3px; background: #f8fafc; }
+
+  /* ─── OPTION B: Emerald / Stone ─── */
+  .b-doc { background: #fafaf9; }
+  .b-doc .doc-sidebar {
+    width: 100%; background: #f5f5f4; border-bottom: 1px solid #e7e5e4;
+    padding: 12px 14px; display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .b-doc .nav-item { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #a8a29e; padding: 2px 7px; border-radius: 4px; }
+  .b-doc .nav-item.active { color: #059669; background: rgba(5,150,105,0.08); }
+  .b-doc .doc-body { padding: 16px; }
+  .b-doc .doc-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 15px; color: #059669; margin-bottom: 2px; }
+  .b-doc .doc-meta { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #a8a29e; margin-bottom: 14px; }
+  .b-doc .section-num {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+    color: #059669; background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2);
+    border-radius: 4px; padding: 1px 6px; margin-right: 6px;
+  }
+  .b-doc .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: #1c1917; }
+  .b-doc .card { background: #fff; border: 1px solid #e7e5e4; border-radius: 8px; padding: 10px 12px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .b-doc table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }
+  .b-doc th { font-family: 'JetBrains Mono', monospace; font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: #a8a29e; padding: 5px 8px; border-bottom: 1px solid #e7e5e4; text-align: left; background: #fafaf9; }
+  .b-doc td { padding: 5px 8px; border-bottom: 1px solid #f5f5f4; color: #78716c; }
+  .b-doc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #059669; background: rgba(5,150,105,0.07); border-radius: 3px; padding: 0 4px; }
+  .b-doc pre { background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 6px; padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #78716c; line-height: 1.7; margin-top: 8px; }
+  .b-doc .kw { color: #059669; } .b-doc .str { color: #b45309; } .b-doc .cm { color: #a8a29e; }
+  .b-doc .badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 8px; padding: 1px 6px; border-radius: 3px; border: 1px solid #e7e5e4; color: #a8a29e; margin-right: 3px; background: #fafaf9; }
+
+  /* ─── OPTION C: Violet / Zinc ─── */
+  .c-doc { background: #fafafa; }
+  .c-doc .doc-sidebar {
+    width: 100%; background: #f4f4f5; border-bottom: 1px solid #e4e4e7;
+    padding: 12px 14px; display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .c-doc .nav-item { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #a1a1aa; padding: 2px 7px; border-radius: 4px; }
+  .c-doc .nav-item.active { color: #7c3aed; background: rgba(124,58,237,0.08); }
+  .c-doc .doc-body { padding: 16px; }
+  .c-doc .doc-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 15px; color: #7c3aed; margin-bottom: 2px; }
+  .c-doc .doc-meta { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #a1a1aa; margin-bottom: 14px; }
+  .c-doc .section-num {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+    color: #7c3aed; background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 4px; padding: 1px 6px; margin-right: 6px;
+  }
+  .c-doc .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: #18181b; }
+  .c-doc .card { background: #fff; border: 1px solid #e4e4e7; border-radius: 8px; padding: 10px 12px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .c-doc table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }
+  .c-doc th { font-family: 'JetBrains Mono', monospace; font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: #a1a1aa; padding: 5px 8px; border-bottom: 1px solid #e4e4e7; text-align: left; background: #fafafa; }
+  .c-doc td { padding: 5px 8px; border-bottom: 1px solid #f4f4f5; color: #71717a; }
+  .c-doc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #7c3aed; background: rgba(124,58,237,0.07); border-radius: 3px; padding: 0 4px; }
+  .c-doc pre { background: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 6px; padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #71717a; line-height: 1.7; margin-top: 8px; }
+  .c-doc .kw { color: #7c3aed; } .c-doc .str { color: #0891b2; } .c-doc .cm { color: #a1a1aa; }
+  .c-doc .badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 8px; padding: 1px 6px; border-radius: 3px; border: 1px solid #e4e4e7; color: #a1a1aa; margin-right: 3px; background: #fafafa; }
+</style>
+</head>
+<body>
+
+<h1>Light Theme Options</h1>
+<p class="subtitle">Dark theme is fixed (zinc-950 + orange). Pick your preferred light theme accent below.</p>
+
+<div class="themes">
+
+  <!-- DARK (reference) -->
+  <div>
+    <div class="doc dark-theme dark-doc">
+      <div class="dark-doc doc-sidebar">
+        <span class="nav-item active">01 Screens</span>
+        <span class="nav-item">02 Modes</span>
+        <span class="nav-item">03 Files</span>
+        <span class="nav-item">04 State</span>
+      </div>
+      <div class="dark-doc doc-body">
+        <div class="dark-doc doc-logo">CYBERTYPE</div>
+        <div class="dark-doc doc-meta">Design Spec · v3.0 · 2026-04-22</div>
+        <div>
+          <span class="dark-doc section-num">06</span>
+          <span class="dark-doc section-title">Word Lock Behavior</span>
+        </div>
+        <div class="dark-doc card">
+          <table>
+            <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>Inside word</td><td><code>delete char</code></td></tr>
+              <tr><td>At word start</td><td>blocked</td></tr>
+              <tr><td>Locked word</td><td>immutable</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre><span class="dark-doc kw">if</span> (key === <span class="dark-doc str">' '</span>) {
+  lockCurrentWord()
+  <span class="cm">// advance or end test</span>
+}</pre>
+        <div style="margin-top:8px;">
+          <span class="dark-doc badge">React 18</span>
+          <span class="dark-doc badge">Vite</span>
+          <span class="dark-doc badge">Tailwind</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; text-align:center; margin-top:10px; text-transform:uppercase; letter-spacing:0.1em;">Dark (current)</div>
+  </div>
+
+  <!-- OPTION A: Indigo / Slate -->
+  <div>
+    <div class="doc option-a a-doc">
+      <div class="a-doc doc-sidebar">
+        <span class="nav-item active">01 Screens</span>
+        <span class="nav-item">02 Modes</span>
+        <span class="nav-item">03 Files</span>
+        <span class="nav-item">04 State</span>
+      </div>
+      <div class="a-doc doc-body">
+        <div class="a-doc doc-logo">CYBERTYPE</div>
+        <div class="a-doc doc-meta">Design Spec · v3.0 · 2026-04-22</div>
+        <div>
+          <span class="a-doc section-num">06</span>
+          <span class="a-doc section-title">Word Lock Behavior</span>
+        </div>
+        <div class="a-doc card">
+          <table>
+            <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>Inside word</td><td><code>delete char</code></td></tr>
+              <tr><td>At word start</td><td>blocked</td></tr>
+              <tr><td>Locked word</td><td>immutable</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre><span class="a-doc kw">if</span> (key === <span class="a-doc str">' '</span>) {
+  lockCurrentWord()
+  <span class="a-doc cm">// advance or end test</span>
+}</pre>
+        <div style="margin-top:8px;">
+          <span class="a-doc badge">React 18</span>
+          <span class="a-doc badge">Vite</span>
+          <span class="a-doc badge">Tailwind</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; text-align:center; margin-top:10px; text-transform:uppercase; letter-spacing:0.1em;">A — Indigo / Slate</div>
+  </div>
+
+  <!-- OPTION B: Emerald / Stone -->
+  <div>
+    <div class="doc option-b b-doc">
+      <div class="b-doc doc-sidebar">
+        <span class="nav-item active">01 Screens</span>
+        <span class="nav-item">02 Modes</span>
+        <span class="nav-item">03 Files</span>
+        <span class="nav-item">04 State</span>
+      </div>
+      <div class="b-doc doc-body">
+        <div class="b-doc doc-logo">CYBERTYPE</div>
+        <div class="b-doc doc-meta">Design Spec · v3.0 · 2026-04-22</div>
+        <div>
+          <span class="b-doc section-num">06</span>
+          <span class="b-doc section-title">Word Lock Behavior</span>
+        </div>
+        <div class="b-doc card">
+          <table>
+            <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>Inside word</td><td><code>delete char</code></td></tr>
+              <tr><td>At word start</td><td>blocked</td></tr>
+              <tr><td>Locked word</td><td>immutable</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre><span class="b-doc kw">if</span> (key === <span class="b-doc str">' '</span>) {
+  lockCurrentWord()
+  <span class="b-doc cm">// advance or end test</span>
+}</pre>
+        <div style="margin-top:8px;">
+          <span class="b-doc badge">React 18</span>
+          <span class="b-doc badge">Vite</span>
+          <span class="b-doc badge">Tailwind</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; text-align:center; margin-top:10px; text-transform:uppercase; letter-spacing:0.1em;">B — Emerald / Stone</div>
+  </div>
+
+</div>
+
+<!-- Row 2: Option C + dark+light pair preview -->
+<div style="margin-top:28px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:28px;">
+
+  <!-- OPTION C: Violet / Zinc -->
+  <div>
+    <div class="doc option-c c-doc">
+      <div class="c-doc doc-sidebar">
+        <span class="nav-item active">01 Screens</span>
+        <span class="nav-item">02 Modes</span>
+        <span class="nav-item">03 Files</span>
+        <span class="nav-item">04 State</span>
+      </div>
+      <div class="c-doc doc-body">
+        <div class="c-doc doc-logo">CYBERTYPE</div>
+        <div class="c-doc doc-meta">Design Spec · v3.0 · 2026-04-22</div>
+        <div>
+          <span class="c-doc section-num">06</span>
+          <span class="c-doc section-title">Word Lock Behavior</span>
+        </div>
+        <div class="c-doc card">
+          <table>
+            <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>Inside word</td><td><code>delete char</code></td></tr>
+              <tr><td>At word start</td><td>blocked</td></tr>
+              <tr><td>Locked word</td><td>immutable</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre><span class="c-doc kw">if</span> (key === <span class="c-doc str">' '</span>) {
+  lockCurrentWord()
+  <span class="c-doc cm">// advance or end test</span>
+}</pre>
+        <div style="margin-top:8px;">
+          <span class="c-doc badge">React 18</span>
+          <span class="c-doc badge">Vite</span>
+          <span class="c-doc badge">Tailwind</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; text-align:center; margin-top:10px; text-transform:uppercase; letter-spacing:0.1em;">C — Violet / Zinc</div>
+  </div>
+
+  <!-- Color token summary -->
+  <div style="grid-column: span 2; display:flex; flex-direction:column; gap:12px;">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Color Token Summary</div>
+    <!-- A -->
+    <div style="background:#111113; border:1px solid #27272a; border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a; min-width:80px;">A · Indigo</div>
+      <div style="display:flex; gap:8px; flex:1;">
+        <div style="flex:1; height:20px; background:#f8fafc; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#f1f5f9; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#4f46e5; border-radius:4px;"></div>
+        <div style="flex:1; height:20px; background:#e2e8f0; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#64748b; border-radius:4px;"></div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#4f46e5;">#4f46e5</div>
+    </div>
+    <!-- B -->
+    <div style="background:#111113; border:1px solid #27272a; border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a; min-width:80px;">B · Emerald</div>
+      <div style="display:flex; gap:8px; flex:1;">
+        <div style="flex:1; height:20px; background:#fafaf9; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#f5f5f4; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#059669; border-radius:4px;"></div>
+        <div style="flex:1; height:20px; background:#e7e5e4; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#78716c; border-radius:4px;"></div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#059669;">#059669</div>
+    </div>
+    <!-- C -->
+    <div style="background:#111113; border:1px solid #27272a; border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a; min-width:80px;">C · Violet</div>
+      <div style="display:flex; gap:8px; flex:1;">
+        <div style="flex:1; height:20px; background:#fafafa; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#f4f4f5; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#7c3aed; border-radius:4px;"></div>
+        <div style="flex:1; height:20px; background:#e4e4e7; border-radius:4px; border:1px solid #27272a;"></div>
+        <div style="flex:1; height:20px; background:#71717a; border-radius:4px;"></div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#7c3aed;">#7c3aed</div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#3f3f46; margin-top:4px;">
+      Swatches left→right: background · sidebar · accent · border · muted text
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

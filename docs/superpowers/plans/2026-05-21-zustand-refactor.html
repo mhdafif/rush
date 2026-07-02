@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en" data-scheme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zustand Refactor — Implementation Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-scheme="light"]) {
+      --bg:#09090b;--bg-card:#18181b;--border:#27272a;--border-dim:#1c1c1f;
+      --text:#d4d4d8;--text-muted:#71717a;--text-dim:#52525b;--text-vdim:#3f3f46;
+      --accent:#f97316;--accent-6:#ea580c;--accent-9:#7c2d12;
+      --accent-bg:rgba(234,88,12,0.08);--accent-bd:rgba(234,88,12,0.25);
+      --red:#ef4444;--red-lt:#f87171;--green:#4ade80;
+      --sidebar-bg:#111113;--pre-bg:#09090b;--kbd-bg:#18181b;--kbd-border:#3f3f46;
+      --dot-color:rgba(234,88,12,0.04);--glow:0 0 20px rgba(234,88,12,0.3);
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-scheme="dark"]) {
+      --bg:#f8fafc;--bg-card:#ffffff;--border:#e2e8f0;--border-dim:#f1f5f9;
+      --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;--text-vdim:#cbd5e1;
+      --accent:#6366f1;--accent-6:#4f46e5;--accent-9:#312e81;
+      --accent-bg:rgba(99,102,241,0.08);--accent-bd:rgba(99,102,241,0.25);
+      --red:#ef4444;--red-lt:#f87171;--green:#22c55e;
+      --sidebar-bg:#f1f5f9;--pre-bg:#f8fafc;--kbd-bg:#f1f5f9;--kbd-border:#e2e8f0;
+      --dot-color:rgba(99,102,241,0.05);--glow:none;
+    }
+  }
+  :root[data-scheme="dark"] {
+    --bg:#09090b;--bg-card:#18181b;--border:#27272a;--border-dim:#1c1c1f;
+    --text:#d4d4d8;--text-muted:#71717a;--text-dim:#52525b;--text-vdim:#3f3f46;
+    --accent:#f97316;--accent-6:#ea580c;--accent-9:#7c2d12;
+    --accent-bg:rgba(234,88,12,0.08);--accent-bd:rgba(234,88,12,0.25);
+    --red:#ef4444;--red-lt:#f87171;--green:#4ade80;
+    --sidebar-bg:#111113;--pre-bg:#09090b;--kbd-bg:#18181b;--kbd-border:#3f3f46;
+    --dot-color:rgba(234,88,12,0.04);--glow:0 0 20px rgba(234,88,12,0.3);
+  }
+  :root[data-scheme="light"] {
+    --bg:#f8fafc;--bg-card:#ffffff;--border:#e2e8f0;--border-dim:#f1f5f9;
+    --text:#1e293b;--text-muted:#64748b;--text-dim:#94a3b8;--text-vdim:#cbd5e1;
+    --accent:#6366f1;--accent-6:#4f46e5;--accent-9:#312e81;
+    --accent-bg:rgba(99,102,241,0.08);--accent-bd:rgba(99,102,241,0.25);
+    --red:#ef4444;--red-lt:#f87171;--green:#22c55e;
+    --sidebar-bg:#f1f5f9;--pre-bg:#f8fafc;--kbd-bg:#f1f5f9;--kbd-border:#e2e8f0;
+    --dot-color:rgba(99,102,241,0.05);--glow:none;
+  }
+
+  body {
+    background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
+    font-size:14px;line-height:1.6;min-height:100vh;
+    background-image:radial-gradient(circle,var(--dot-color) 1px,transparent 1px);
+    background-size:30px 30px;
+  }
+  .theme-switcher {
+    position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:6px;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:5px 8px;
+  }
+  .theme-btn {width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:border-color .15s,transform .1s;}
+  .theme-btn:hover{transform:scale(1.15);}
+  .theme-btn.active{border-color:var(--accent);}
+  .theme-btn[data-s="dark"]{background:#09090b;outline:1px solid #3f3f46;outline-offset:1px;}
+  .theme-btn[data-s="light"]{background:#f8fafc;outline:1px solid #e2e8f0;outline-offset:1px;}
+
+  .layout{display:flex;min-height:100vh;}
+  .sidebar {
+    position:fixed;top:0;left:0;width:240px;height:100vh;
+    background:var(--sidebar-bg);border-right:1px solid var(--border-dim);
+    padding:28px 0;overflow-y:auto;z-index:10;
+  }
+  .sidebar-logo {
+    font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:18px;
+    color:var(--accent-6);text-shadow:var(--glow);padding:0 20px 24px;
+    border-bottom:1px solid var(--border-dim);display:block;letter-spacing:-0.02em;
+  }
+  .sidebar-sub {
+    font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);
+    font-weight:400;display:block;margin-top:3px;letter-spacing:.05em;
+  }
+  .nav-section-label {
+    font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.15em;color:var(--text-vdim);padding:20px 20px 8px;
+  }
+  .nav-link {
+    display:flex;align-items:center;gap:10px;padding:7px 20px;
+    font-size:13px;color:var(--text-muted);text-decoration:none;
+    transition:color .15s,background .15s;cursor:pointer;
+  }
+  .nav-link:hover{color:var(--accent);background:var(--accent-bg);}
+  .nav-link .num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-vdim);min-width:16px;}
+
+  .main{margin-left:240px;padding:48px 48px 80px;max-width:940px;}
+  .page-header{margin-bottom:40px;}
+  .page-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--accent);margin-bottom:10px;}
+  .page-title{font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:900;color:var(--accent-6);text-shadow:var(--glow);letter-spacing:-.02em;line-height:1;margin-bottom:10px;}
+  .page-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+  .meta-badge{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border);border-radius:5px;padding:3px 10px;}
+
+  .section{margin-bottom:52px;scroll-margin-top:24px;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border-dim);}
+  .section-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:5px;padding:2px 8px;min-width:32px;text-align:center;}
+  .section-title{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:var(--text);}
+  .new-badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:4px;padding:1px 6px;letter-spacing:.1em;}
+  .done-badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--green);background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:1px 6px;letter-spacing:.1em;}
+  .wip-badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;color:#facc15;background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.25);border-radius:4px;padding:1px 6px;letter-spacing:.1em;}
+
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px;}
+  .card-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .card-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  .card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .card p{font-size:12px;color:var(--text-muted);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;}
+  thead tr{background:var(--sidebar-bg);}
+  th{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);padding:9px 14px;text-align:left;border-bottom:1px solid var(--border);}
+  td{padding:9px 14px;border-bottom:1px solid var(--border-dim);color:var(--text-muted);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--accent-bg);}
+  td code{color:var(--accent);}
+  .td-green{color:var(--green);}
+  .td-red{color:var(--red-lt);}
+
+  pre{background:var(--pre-bg);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:var(--text-muted);overflow-x:auto;margin-bottom:14px;}
+  .kw{color:var(--accent);}.fn{color:var(--accent-6);}.str{color:var(--green);}.cm{color:var(--text-vdim);}.num{color:#60a5fa;}.tp{color:#c084fc;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-bd);border-radius:4px;padding:1px 5px;}
+
+  .file-tree{background:var(--pre-bg);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;}
+  .ft-dir{color:var(--accent);}.ft-file{color:var(--text-muted);}.ft-cm{color:var(--text-vdim);}.ft-new{color:var(--accent);font-weight:700;}
+
+  .note{background:var(--accent-bg);border-left:3px solid var(--accent-6);border-radius:0 7px 7px 0;padding:10px 14px;font-size:13px;color:var(--text-muted);margin-bottom:14px;}
+  .warn{background:rgba(239,68,68,.06);border-left:3px solid var(--red);border-radius:0 7px 7px 0;padding:10px 14px;font-size:13px;color:var(--text-muted);margin-bottom:14px;}
+
+  hr{border:none;border-top:1px solid var(--border-dim);margin:32px 0;}
+  h3{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin:20px 0 10px;}
+  p{color:var(--text-muted);font-size:13px;line-height:1.8;margin-bottom:12px;}
+  ul.spec-list{padding-left:18px;color:var(--text-muted);line-height:2;font-size:13px;}
+  ul.spec-list li strong{color:var(--text);}
+
+  /* Task blocks */
+  .task{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:18px;}
+  .task-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-dim);}
+  .task-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:4px;padding:2px 8px;}
+  .task-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+  .task-files{margin-bottom:14px;}
+  .task-files span{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);}
+  .step{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;font-size:13px;color:var(--text-muted);}
+  .step-cb{width:14px;height:14px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;margin-top:2px;cursor:pointer;}
+  .step-cb.done{background:var(--accent);border-color:var(--accent);}
+  .step label{cursor:pointer;}
+
+  kbd{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--kbd-bg);border:1px solid var(--kbd-border);border-bottom:2px solid var(--kbd-border);border-radius:5px;padding:2px 7px;color:var(--text-muted);}
+
+  @media (max-width:768px){
+    .sidebar{display:none;}
+    .main{margin-left:0;padding:24px 20px 60px;}
+    .card-grid-2,.card-grid-3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="theme-switcher">
+  <div class="theme-btn" data-s="dark"  title="Dark"  onclick="setScheme('dark')"></div>
+  <div class="theme-btn" data-s="light" title="Light" onclick="setScheme('light')"></div>
+</div>
+
+<div class="layout">
+
+  <nav class="sidebar">
+    <span class="sidebar-logo">
+      CYBERTYPE
+      <span class="sidebar-sub">Implementation Plan · v1.0 · 2026-05-21</span>
+    </span>
+    <div class="nav-section-label">Contents</div>
+    <a class="nav-link" href="#s1"><span class="num">01</span> Goal &amp; Principles</a>
+    <a class="nav-link" href="#s2"><span class="num">02</span> Architecture</a>
+    <a class="nav-link" href="#s3"><span class="num">03</span> File Map</a>
+    <a class="nav-link" href="#s4"><span class="num">04</span> Stores</a>
+    <a class="nav-link" href="#s5"><span class="num">05</span> Task 1 — Stores</a>
+    <a class="nav-link" href="#s6"><span class="num">06</span> Task 2 — useApp split</a>
+    <a class="nav-link" href="#s7"><span class="num">07</span> Task 3 — Header split</a>
+    <a class="nav-link" href="#s8"><span class="num">08</span> Task 4 — TypingArena split</a>
+    <a class="nav-link" href="#s9"><span class="num">09</span> Task 5 — ResultsScreen split</a>
+    <a class="nav-link" href="#s10"><span class="num">10</span> Task 6 — StatsDrawer split</a>
+    <a class="nav-link" href="#s11"><span class="num">11</span> Task 7 — App.tsx cleanup</a>
+    <a class="nav-link" href="#s12"><span class="num">12</span> Task 8 — Tests &amp; Validate</a>
+    <a class="nav-link" href="#s13"><span class="num">13</span> Progress Tracker</a>
+  </nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div class="page-label">Implementation Plan</div>
+      <div class="page-title">Zustand Refactor</div>
+      <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">
+        Logic/view separation, micro-components, Zustand global state, localStorage-persisted history.
+      </p>
+      <div class="page-meta">
+        <span class="meta-badge">React 19</span>
+        <span class="meta-badge">Zustand 5</span>
+        <span class="meta-badge">TypeScript 6</span>
+        <span class="meta-badge">Vite 8</span>
+        <span class="meta-badge">2026-05-21</span>
+      </div>
+    </div>
+
+    <!-- ─── S1 Goal ─────────────────────────────────────────────── -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">Goal &amp; Principles</span>
+      </div>
+
+      <p><strong>Goal:</strong> Refactor CYBERTYPE so every screen file is a thin view, all logic lives in a paired <code>use*.tsx</code> hook, shared state lives in Zustand stores (no prop drilling), and history/settings persist via <code>localStorage</code> through Zustand middleware.</p>
+
+      <div class="note">
+        Convention from <code>ex/login.tsx</code> + <code>ex/useLogin.tsx</code>: each view imports one hook; the hook is sectioned by <code>/*=== Props ===*/</code>, <code>/*=== Store ===*/</code>, <code>/*=== UseState ===*/</code>, <code>/*=== Handler ===*/</code>, <code>/*=== UseEffect ===*/</code>, <code>/*=== Return ===*/</code>.
+      </div>
+
+      <ul class="spec-list">
+        <li><strong>No prop drilling</strong> — all cross-component state consumed directly from stores.</li>
+        <li><strong>Micro-components</strong> — large files broken into focused sub-components, one responsibility each.</li>
+        <li><strong>Zustand stores</strong> — two stores: <code>useTypingStore</code> (test/engine state) and <code>useSettingsStore</code> (config + history + best, persisted to localStorage).</li>
+        <li><strong>Existing hooks preserved</strong> — <code>useTypingEngine</code>, <code>useTimer</code>, <code>useSound</code>, etc. keep their internals; they feed the store.</li>
+        <li><strong>Tests still pass</strong> — <code>pnpm validate</code> green after every task.</li>
+        <li><strong>Commits per task</strong> — one focused commit per task.</li>
+      </ul>
+    </div>
+
+    <!-- ─── S2 Architecture ──────────────────────────────────────── -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">Architecture Overview</span>
+      </div>
+
+      <div class="card-grid-2">
+        <div class="card">
+          <h4>Before</h4>
+          <p><code>App.tsx</code> destructures ~20 values from <code>useApp</code> and passes them as props 2–3 levels deep. Components like <code>Header</code> receive 13 props.</p>
+        </div>
+        <div class="card">
+          <h4>After</h4>
+          <p><code>App.tsx</code> renders layout only. Each sub-component reads exactly what it needs from a store. <code>useApp</code> is split into feature hooks.</p>
+        </div>
+      </div>
+
+      <h3>Data flow (after)</h3>
+      <pre><span class="cm">// Zustand stores — all components subscribe directly
+</span>
+<span class="kw">useSettingsStore</span>  <span class="cm">→ visualMode, duration, lang, caretStyle, suddenDeath, muted</span>
+                  <span class="cm">→ history[], best  (persisted via localStorage middleware)</span>
+
+<span class="kw">useTypingStore</span>    <span class="cm">→ phase, words, wordStates, currentInput, …</span>
+                  <span class="cm">→ testResult, view ("typing" | "results")</span>
+                  <span class="cm">→ isPaused, wpm, accuracy, timeDisplay</span></pre>
+    </div>
+
+    <!-- ─── S3 File Map ──────────────────────────────────────────── -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">File Map — Created &amp; Modified</span>
+      </div>
+
+      <table>
+        <thead><tr><th>Action</th><th>File</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td class="td-green">CREATE</td><td><code>src/store/typing/typingStore.ts</code></td><td>Engine state, phase, view, testResult, isPaused, wpm, accuracy, timeDisplay</td></tr>
+          <tr><td class="td-green">CREATE</td><td><code>src/store/typing/ITypingStore.ts</code></td><td>TypeScript interfaces for typing store</td></tr>
+          <tr><td class="td-green">CREATE</td><td><code>src/store/settings/settingsStore.ts</code></td><td>visualMode, duration, lang, caretStyle, suddenDeath, muted, history, best — persisted</td></tr>
+          <tr><td class="td-green">CREATE</td><td><code>src/store/settings/ISettingsStore.ts</code></td><td>TypeScript interfaces for settings store</td></tr>
+          <tr><td style="color:var(--accent)">KEEP</td><td><code>src/store/global/globalStore.ts</code></td><td>Existing generic global store — unchanged</td></tr>
+          <tr><td style="color:#facc15">MODIFY</td><td><code>src/useApp.tsx</code></td><td>Split into <code>useTypingSession</code> hook; feeds stores instead of returning props</td></tr>
+          <tr><td style="color:#facc15">MODIFY</td><td><code>src/App.tsx</code></td><td>Remove prop passing; layout shell only</td></tr>
+          <tr><td style="color:#facc15">MODIFY</td><td><code>src/components/Header.tsx</code></td><td>Split into Header (view) + <code>src/components/header/useHeader.tsx</code>; sub-components in <code>src/components/header/</code></td></tr>
+          <tr><td style="color:#facc15">MODIFY</td><td><code>src/components/TypingArena.tsx</code></td><td>Split into view + <code>src/components/typingArena/useTypingArena.tsx</code></td></tr>
+          <tr><td style="color:#facc15">MODIFY</td><td><code>src/components/ResultsScreen.tsx</code></td><td>Reads from store; split out sub-components</td></tr>
+          <tr><td style="color:#facc15">MODIFY</td><td><code>src/components/StatsDrawer.tsx</code></td><td>Reads from store directly; no props needed</td></tr>
+          <tr><td style="color:var(--accent)">KEEP</td><td><code>src/hooks/useTypingEngine.ts</code></td><td>Internal engine logic — unchanged</td></tr>
+          <tr><td style="color:var(--accent)">KEEP</td><td><code>src/hooks/useStorage.ts</code></td><td>Replaced by settingsStore persist middleware</td></tr>
+        </tbody>
+      </table>
+
+      <div class="file-tree">
+        <div><span class="ft-dir">src/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">store/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-dir">global/</span> &nbsp;<span class="ft-cm">— existing, unchanged</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">typing/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">ITypingStore.ts</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">typingStore.ts</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">settings/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">ISettingsStore.ts</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">settingsStore.ts</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-dir">components/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">header/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">useHeader.tsx</span> &nbsp;<span class="ft-cm">— hook: configOpen, handlers</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">NavBtn.tsx</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">ModeSummary.tsx</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">ConfigDrawer.tsx</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">CustomDurationDialog.tsx</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">HeaderIcons.tsx</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">Header.tsx</span> &nbsp;<span class="ft-cm">— thin view, imports from header/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">typingArena/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">useTypingArena.tsx</span> &nbsp;<span class="ft-cm">— activeKeys, wrongKeys, handlers</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">ShortcutHints.tsx</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-new">IconBtn.tsx</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">TypingArena.tsx</span> &nbsp;<span class="ft-cm">— thin view</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">useApp.tsx</span> &nbsp;<span class="ft-cm">— renamed to useTypingSession, feeds stores</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">App.tsx</span> &nbsp;<span class="ft-cm">— layout shell only</span></div>
+      </div>
+    </div>
+
+    <!-- ─── S4 Stores ────────────────────────────────────────────── -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">Store Shapes</span>
+      </div>
+
+      <h3>useSettingsStore — persisted to localStorage</h3>
+      <pre><span class="cm">// src/store/settings/ISettingsStore.ts</span>
+<span class="kw">export interface</span> <span class="tp">ISettingsState</span> {
+  visualMode: <span class="tp">VisualMode</span>;        <span class="cm">// "time" | "words" | "punct" | "nums" | "quotes"</span>
+  duration:   <span class="tp">number</span>;
+  lang:       <span class="tp">Language</span>;           <span class="cm">// "en" | "id"</span>
+  caretStyle: <span class="tp">CaretStyle</span>;         <span class="cm">// "line" | "underline"</span>
+  suddenDeath:<span class="tp">boolean</span>;
+  muted:      <span class="tp">boolean</span>;
+  history:    <span class="tp">HistoryEntry[]</span>;     <span class="cm">// last 5 results</span>
+  best:       <span class="tp">BestScore | null</span>;
+}
+<span class="kw">export interface</span> <span class="tp">ISettingsStore</span> <span class="kw">extends</span> <span class="tp">ISettingsState</span> {
+  setVisualMode: (<span class="fn">vm</span>: <span class="tp">VisualMode</span>) => <span class="tp">void</span>;
+  setDuration:   (<span class="fn">d</span>: <span class="tp">number</span>)     => <span class="tp">void</span>;
+  setLang:       (<span class="fn">l</span>: <span class="tp">Language</span>)    => <span class="tp">void</span>;
+  setCaretStyle: (<span class="fn">s</span>: <span class="tp">CaretStyle</span>)  => <span class="tp">void</span>;
+  toggleSuddenDeath: ()            => <span class="tp">void</span>;
+  toggleMute:    ()                => <span class="tp">void</span>;
+  saveResult:    (<span class="fn">r</span>: <span class="tp">TestResult</span>, <span class="fn">lang</span>: <span class="tp">Language</span>) => <span class="tp">void</span>;
+}</pre>
+
+      <h3>useTypingStore — in-memory only</h3>
+      <pre><span class="cm">// src/store/typing/ITypingStore.ts</span>
+<span class="kw">export interface</span> <span class="tp">ITypingState</span> {
+  view:        <span class="str">"typing"</span> | <span class="str">"results"</span>;
+  words:       <span class="tp">string[]</span>;
+  quoteAuthor: <span class="tp">string | undefined</span>;
+  isPaused:    <span class="tp">boolean</span>;
+  testResult:  <span class="tp">TestResult | null</span>;
+  wpm:         <span class="tp">number</span>;
+  accuracy:    <span class="tp">number</span>;
+  timeDisplay: <span class="tp">string</span>;
+  resetKey:    <span class="tp">number</span>;
+  isDrawerOpen:<span class="tp">boolean</span>;
+}
+<span class="kw">export interface</span> <span class="tp">ITypingStore</span> <span class="kw">extends</span> <span class="tp">ITypingState</span> {
+  setState: &lt;<span class="tp">K extends keyof ITypingState</span>&gt;(<span class="fn">key</span>: <span class="tp">K</span>, <span class="fn">value</span>: <span class="tp">ITypingState[K]</span>) => <span class="tp">void</span>;
+  reset:    () => <span class="tp">void</span>;
+}</pre>
+
+      <div class="note">
+        <strong>Persist strategy:</strong> <code>settingsStore</code> uses Zustand <code>persist</code> middleware with <code>localStorage</code>. Keys: <code>cybertype_settings</code>. History and best are stored as fields inside the same key. <code>typingStore</code> is NOT persisted — it resets on page load.
+      </div>
+    </div>
+
+    <!-- ─── S5 Task 1 ────────────────────────────────────────────── -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">Task 1 — Zustand Stores</span>
+        <span class="new-badge">start here</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T1</span>
+          <span class="task-title">Create ISettingsStore + settingsStore + ITypingStore + typingStore</span>
+        </div>
+        <div class="task-files">
+          <span>CREATE: src/store/settings/ISettingsStore.ts<br>
+          CREATE: src/store/settings/settingsStore.ts<br>
+          CREATE: src/store/typing/ITypingStore.ts<br>
+          CREATE: src/store/typing/typingStore.ts</span>
+        </div>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>1.1 Create <code>src/store/settings/ISettingsStore.ts</code> with interfaces as shown in §04</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>1.2 Create <code>src/store/settings/settingsStore.ts</code> — use <code>zustand/middleware</code> <code>persist</code> + <code>devtools</code>. Migrate <code>HISTORY_KEY</code>, <code>BEST_KEY</code>, <code>CARET_KEY</code>, <code>MAX_HISTORY=5</code> logic from <code>useStorage.ts</code>.</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>1.3 Create <code>src/store/typing/ITypingStore.ts</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>1.4 Create <code>src/store/typing/typingStore.ts</code> — <code>devtools</code> only, no persist</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>1.5 Run <kbd>nvm use 24 &amp;&amp; pnpm validate</kbd> — must pass with 0 errors</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>1.6 Commit: <code>feat: add settingsStore and typingStore with Zustand</code></label></div>
+      </div>
+
+      <h3>settingsStore skeleton</h3>
+      <pre><span class="kw">import</span> { create } <span class="kw">from</span> <span class="str">"zustand"</span>;
+<span class="kw">import</span> { devtools, persist } <span class="kw">from</span> <span class="str">"zustand/middleware"</span>;
+<span class="kw">import type</span> { <span class="tp">ISettingsState</span>, <span class="tp">ISettingsStore</span> } <span class="kw">from</span> <span class="str">"./ISettingsStore"</span>;
+
+<span class="kw">const</span> <span class="fn">initial</span>: <span class="tp">ISettingsState</span> = {
+  visualMode: <span class="str">"time"</span>, duration: <span class="num">30</span>, lang: <span class="str">"en"</span>,
+  caretStyle: <span class="str">"line"</span>, suddenDeath: <span class="kw">false</span>, muted: <span class="kw">false</span>,
+  history: [], best: <span class="kw">null</span>,
+};
+
+<span class="kw">const</span> <span class="fn">useSettingsStore</span> = <span class="fn">create</span>&lt;<span class="tp">ISettingsStore</span>&gt;()(
+  <span class="fn">devtools</span>(<span class="fn">persist</span>(<span class="fn">set</span> =&gt; ({
+    ...initial,
+    <span class="fn">setVisualMode</span>: (<span class="fn">vm</span>) =&gt; <span class="fn">set</span>({ visualMode: vm }),
+    <span class="fn">setDuration</span>:   (<span class="fn">d</span>)  =&gt; <span class="fn">set</span>({ duration: d }),
+    <span class="fn">setLang</span>:       (<span class="fn">l</span>)  =&gt; <span class="fn">set</span>({ lang: l }),
+    <span class="fn">setCaretStyle</span>: (<span class="fn">s</span>)  =&gt; <span class="fn">set</span>({ caretStyle: s }),
+    <span class="fn">toggleSuddenDeath</span>: () =&gt; <span class="fn">set</span>(<span class="fn">s</span> =&gt; ({ suddenDeath: !s.suddenDeath })),
+    <span class="fn">toggleMute</span>:    () =&gt; <span class="fn">set</span>(<span class="fn">s</span> =&gt; ({ muted: !s.muted })),
+    <span class="fn">saveResult</span>: (<span class="fn">result</span>, <span class="fn">lang</span>) =&gt; <span class="fn">set</span>(<span class="fn">s</span> =&gt; {
+      <span class="cm">// ... same logic as useStorage.saveResult</span>
+    }),
+  }), { name: <span class="str">"cybertype_settings"</span> }), { name: <span class="str">"settings-store"</span> })
+);
+<span class="kw">export default</span> useSettingsStore;</pre>
+    </div>
+
+    <!-- ─── S6 Task 2 ────────────────────────────────────────────── -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">Task 2 — Split useApp → useTypingSession</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T2</span>
+          <span class="task-title">Refactor useApp.tsx to use stores; rename to useTypingSession</span>
+        </div>
+        <div class="task-files">
+          <span>MODIFY: src/useApp.tsx (keep filename, rename export to useTypingSession internally)</span>
+        </div>
+
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+          <code>useApp.tsx</code> becomes a thin orchestrator. It reads config from <code>useSettingsStore</code>, writes engine results to <code>useTypingStore</code>, and returns <strong>nothing</strong> (or a minimal subset). <code>App.tsx</code> just calls <code>useTypingSession()</code> for the side effects.
+        </p>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>2.1 Replace local <code>useState</code> for visualMode, duration, lang, caretStyle, suddenDeath, muted with reads from <code>useSettingsStore</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>2.2 Replace local <code>useState</code> for view, words, isPaused, testResult, quoteAuthor, resetKey, isDrawerOpen with writes to/reads from <code>useTypingStore</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>2.3 Replace <code>useStorage()</code> with <code>useSettingsStore().saveResult</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>2.4 Handlers (<code>handleRetry</code>, <code>handleNew</code>, <code>handleVisualModeChange</code>, etc.) move to <code>useTypingStore.setState</code> / <code>useSettingsStore.set*</code> calls inside useApp</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>2.5 Section comments added: <code>/*=== Props ===*/</code>, <code>/*=== Store ===*/</code>, <code>/*=== UseState ===*/</code>, <code>/*=== Handler ===*/</code>, <code>/*=== UseEffect ===*/</code>, <code>/*=== Return ===*/</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>2.6 Run <kbd>pnpm validate</kbd></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>2.7 Commit: <code>refactor: migrate useApp to useTypingSession with Zustand stores</code></label></div>
+      </div>
+
+      <div class="note">
+        <code>useApp.tsx</code> keeps all the orchestration logic — engine, timer, effects. It just writes state into the stores instead of returning it as props. The return value shrinks to <code>{}</code> or is dropped entirely.
+      </div>
+    </div>
+
+    <!-- ─── S7 Task 3 ────────────────────────────────────────────── -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">Task 3 — Header micro-components</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T3</span>
+          <span class="task-title">Split Header.tsx into sub-components + useHeader hook</span>
+        </div>
+        <div class="task-files">
+          <span>CREATE: src/components/header/HeaderIcons.tsx<br>
+          CREATE: src/components/header/NavBtn.tsx<br>
+          CREATE: src/components/header/ModeSummary.tsx<br>
+          CREATE: src/components/header/CustomDurationDialog.tsx<br>
+          CREATE: src/components/header/ConfigDrawer.tsx<br>
+          CREATE: src/components/header/useHeader.tsx<br>
+          MODIFY: src/components/Header.tsx</span>
+        </div>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.1 Move icon SVGs (<code>IconLang</code>, <code>IconCaret</code>, <code>IconSound</code>, <code>IconConfig</code>, <code>IconInfo</code>) to <code>HeaderIcons.tsx</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.2 Move <code>NavBtn</code> to <code>NavBtn.tsx</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.3 Move <code>ModeSummary</code> to <code>ModeSummary.tsx</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.4 Move <code>CustomDurationDialog</code> to <code>CustomDurationDialog.tsx</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.5 Move <code>ConfigDrawer</code> to <code>ConfigDrawer.tsx</code> — reads visualMode, duration, lang, caretStyle, suddenDeath from <code>useSettingsStore</code> directly; no props for those</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.6 Create <code>useHeader.tsx</code> — owns <code>configOpen</code> state; exposes handlers that call store actions</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.7 Rewrite <code>Header.tsx</code> as thin view: imports <code>useHeader</code>, renders sub-components; section comments present</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.8 Remove all the props from <code>Header</code>'s interface that are now in the store (visualMode, duration, lang, caretStyle, suddenDeath, muted, onVisualModeChange, onDurationChange, onLangChange, onCaretStyleChange, onToggleSuddenDeath, onToggleMute)</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.9 Update <code>App.tsx</code> — remove those 11 props from <code>&lt;Header&gt;</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.10 Run <kbd>pnpm validate</kbd></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>3.11 Commit: <code>refactor: split Header into micro-components and useHeader hook</code></label></div>
+      </div>
+    </div>
+
+    <!-- ─── S8 Task 4 ────────────────────────────────────────────── -->
+    <div class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <span class="section-title">Task 4 — TypingArena micro-components</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T4</span>
+          <span class="task-title">Split TypingArena.tsx into sub-components + useTypingArena hook</span>
+        </div>
+        <div class="task-files">
+          <span>CREATE: src/components/typingArena/IconBtn.tsx<br>
+          CREATE: src/components/typingArena/ShortcutHints.tsx<br>
+          CREATE: src/components/typingArena/useTypingArena.tsx<br>
+          MODIFY: src/components/TypingArena.tsx</span>
+        </div>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.1 Move <code>IconShuffle</code>, <code>IconRestart</code> to <code>typingArena/IconBtn.tsx</code> alongside <code>IconBtn</code> component</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.2 Move <code>ShortcutHints</code> to <code>typingArena/ShortcutHints.tsx</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.3 Create <code>useTypingArena.tsx</code> — reads words, wordStates, currentInput, currentIndex, lockedInputs, isPaused, phase from <code>useTypingStore</code>; derives <code>activeKeys</code>, <code>wrongKeys</code>; owns <code>inputRef</code>, <code>mounted</code>; exposes <code>handleArenaClick</code>, <code>handleResume</code>, <code>handleKeyDownWrapper</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.4 Rewrite <code>TypingArena.tsx</code> as thin view: 0 props (reads store via <code>useTypingArena</code>); section comments present</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.5 Update <code>App.tsx</code> — remove all props from <code>&lt;TypingArena&gt;</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.6 Update test file <code>TypingArena.test.tsx</code> — since component now reads from store, wrap render with a store provider or mock the store; confirm 4 tests still pass</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.7 Run <kbd>pnpm validate</kbd></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>4.8 Commit: <code>refactor: split TypingArena into micro-components and useTypingArena hook</code></label></div>
+      </div>
+
+      <div class="warn">
+        Test strategy: Zustand stores work without a provider in tests — just import the store and call <code>setState</code> before rendering. Reset store between tests with <code>beforeEach(() =&gt; useTypingStore.setState(initialState))</code>.
+      </div>
+    </div>
+
+    <!-- ─── S9 Task 5 ────────────────────────────────────────────── -->
+    <div class="section" id="s9">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <span class="section-title">Task 5 — ResultsScreen</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T5</span>
+          <span class="task-title">ResultsScreen reads from store; split sub-components</span>
+        </div>
+        <div class="task-files">
+          <span>MODIFY: src/components/ResultsScreen.tsx</span>
+        </div>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>5.1 Remove props <code>result</code>, <code>history</code>, <code>best</code>, <code>onRetry</code>, <code>onNew</code> — read them from <code>useTypingStore</code> / <code>useSettingsStore</code></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>5.2 Add section comments</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>5.3 Update <code>App.tsx</code> — <code>&lt;ResultsScreen /&gt;</code> with 0 props</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>5.4 Run <kbd>pnpm validate</kbd></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>5.5 Commit: <code>refactor: ResultsScreen reads from Zustand stores</code></label></div>
+      </div>
+    </div>
+
+    <!-- ─── S10 Task 6 ───────────────────────────────────────────── -->
+    <div class="section" id="s10">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <span class="section-title">Task 6 — StatsDrawer</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T6</span>
+          <span class="task-title">StatsDrawer reads from store; no props</span>
+        </div>
+        <div class="task-files">
+          <span>MODIFY: src/components/StatsDrawer.tsx</span>
+        </div>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>6.1 Remove props <code>history</code>, <code>best</code>, <code>muted</code>, <code>onToggleMute</code>, <code>isOpen</code>, <code>onClose</code> — read from stores</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>6.2 Add section comments</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>6.3 Update <code>App.tsx</code> — <code>&lt;StatsDrawer /&gt;</code> with 0 props</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>6.4 Run <kbd>pnpm validate</kbd></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>6.5 Commit: <code>refactor: StatsDrawer reads from Zustand stores</code></label></div>
+      </div>
+    </div>
+
+    <!-- ─── S11 Task 7 ───────────────────────────────────────────── -->
+    <div class="section" id="s11">
+      <div class="section-header">
+        <span class="section-num">11</span>
+        <span class="section-title">Task 7 — App.tsx cleanup</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T7</span>
+          <span class="task-title">App.tsx becomes a pure layout shell</span>
+        </div>
+        <div class="task-files">
+          <span>MODIFY: src/App.tsx</span>
+        </div>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>7.1 Replace <code>useApp()</code> call with <code>useTypingSession()</code> (no destructuring)</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>7.2 Read <code>view</code> and <code>testResult</code> from <code>useTypingStore</code> for conditional rendering</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>7.3 All child components rendered with zero props (<code>&lt;Header /&gt;</code>, <code>&lt;TypingArena /&gt;</code>, etc.)</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>7.4 Add <code>/*=== Props ===*/</code> and <code>/*=== Return ===*/</code> section comments</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>7.5 Run <kbd>pnpm validate</kbd></label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>7.6 Commit: <code>refactor: App.tsx is now a pure layout shell with zero prop drilling</code></label></div>
+      </div>
+    </div>
+
+    <!-- ─── S12 Task 8 ───────────────────────────────────────────── -->
+    <div class="section" id="s12">
+      <div class="section-header">
+        <span class="section-num">12</span>
+        <span class="section-title">Task 8 — Tests &amp; Final Validation</span>
+      </div>
+
+      <div class="task">
+        <div class="task-header">
+          <span class="task-num">T8</span>
+          <span class="task-title">Update tests, run full validate, smoke-test in browser</span>
+        </div>
+        <div class="task-files">
+          <span>MODIFY: src/components/TypingArena.test.tsx</span>
+        </div>
+
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>8.1 In test file, add <code>beforeEach</code> to reset <code>useTypingStore</code> and <code>useSettingsStore</code> to initial state</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>8.2 Seed required store state before each test (e.g. <code>useTypingStore.setState({ words: ['hello','world'], phase: 'running', ... })</code>)</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>8.3 Run <kbd>nvm use 24 &amp;&amp; pnpm test</kbd> — 4 tests green</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>8.4 Run <kbd>pnpm validate</kbd> — 0 errors, 0 warnings</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>8.5 Run <kbd>pnpm dev</kbd>, open browser — confirm: typing test works, settings persist on reload, history shows in StatsDrawer, best score persists</label></div>
+        <div class="step"><div class="step-cb" onclick="this.classList.toggle('done')"></div><label>8.6 Commit: <code>test: update TypingArena tests for Zustand store integration</code></label></div>
+      </div>
+    </div>
+
+    <!-- ─── S13 Progress ─────────────────────────────────────────── -->
+    <div class="section" id="s13">
+      <div class="section-header">
+        <span class="section-num">13</span>
+        <span class="section-title">Progress Tracker</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Commit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>T1</code></td>
+            <td>Create settingsStore + typingStore</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>T2</code></td>
+            <td>Refactor useApp → useTypingSession</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>T3</code></td>
+            <td>Header micro-components + useHeader</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>T4</code></td>
+            <td>TypingArena micro-components + useTypingArena</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>T5</code></td>
+            <td>ResultsScreen → store</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>T6</code></td>
+            <td>StatsDrawer → store</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>T7</code></td>
+            <td>App.tsx cleanup — 0 prop drilling</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>T8</code></td>
+            <td>Tests + validate + smoke</td>
+            <td class="td-red">pending</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        Update this table as tasks complete. Change status to <strong style="color:var(--green)">done</strong> and fill in the commit SHA.
+      </div>
+
+      <h3>Section comment template (copy into every hook/view file)</h3>
+      <pre><span class="cm">/*======================== Props ========================*/
+
+/*======================== Queries ========================*/
+
+/*======================== Store ========================*/
+
+/*======================== Form ========================*/
+
+/*======================== UseState ========================*/
+
+/*======================== Handler ========================*/
+
+/*======================== UseEffect ========================*/
+
+/*======================== Others ========================*/
+
+/*======================== Return ========================*/</span></pre>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function setScheme(s) {
+    document.documentElement.setAttribute('data-scheme', s);
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.s === s);
+    });
+    localStorage.setItem('doc-scheme', s);
+  }
+  const saved = localStorage.getItem('doc-scheme');
+  const preferred = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-scheme', preferred);
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.s === preferred);
+    });
+  });
+</script>
+</body>
+</html>

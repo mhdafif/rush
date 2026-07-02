@@ -1,0 +1,1248 @@
+<!doctype html>
+<html lang="en" data-scheme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>History Access Options — Design Comparison</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-scheme="light"]) {
+          --bg: #09090b;
+          --bg-card: #18181b;
+          --border: #27272a;
+          --border-dim: #1c1c1f;
+          --text: #d4d4d8;
+          --text-muted: #71717a;
+          --text-dim: #52525b;
+          --text-vdim: #3f3f46;
+          --accent: #f97316;
+          --accent-6: #ea580c;
+          --accent-9: #7c2d12;
+          --accent-bg: rgba(234, 88, 12, 0.08);
+          --accent-bd: rgba(234, 88, 12, 0.25);
+          --red: #ef4444;
+          --red-lt: #f87171;
+          --green: #4ade80;
+          --sidebar-bg: #111113;
+          --pre-bg: #09090b;
+          --kbd-bg: #18181b;
+          --kbd-border: #3f3f46;
+          --dot-color: rgba(234, 88, 12, 0.04);
+          --glow: 0 0 20px rgba(234, 88, 12, 0.3);
+        }
+      }
+      @media (prefers-color-scheme: light) {
+        :root:not([data-scheme="dark"]) {
+          --bg: #f8fafc;
+          --bg-card: #ffffff;
+          --border: #e2e8f0;
+          --border-dim: #f1f5f9;
+          --text: #1e293b;
+          --text-muted: #64748b;
+          --text-dim: #94a3b8;
+          --text-vdim: #cbd5e1;
+          --accent: #6366f1;
+          --accent-6: #4f46e5;
+          --accent-9: #312e81;
+          --accent-bg: rgba(99, 102, 241, 0.08);
+          --accent-bd: rgba(99, 102, 241, 0.25);
+          --red: #ef4444;
+          --red-lt: #f87171;
+          --green: #22c55e;
+          --sidebar-bg: #f1f5f9;
+          --pre-bg: #f8fafc;
+          --kbd-bg: #f1f5f9;
+          --kbd-border: #e2e8f0;
+          --dot-color: rgba(99, 102, 241, 0.05);
+          --glow: none;
+        }
+      }
+      :root[data-scheme="dark"] {
+        --bg: #09090b;
+        --bg-card: #18181b;
+        --border: #27272a;
+        --border-dim: #1c1c1f;
+        --text: #d4d4d8;
+        --text-muted: #71717a;
+        --text-dim: #52525b;
+        --text-vdim: #3f3f46;
+        --accent: #f97316;
+        --accent-6: #ea580c;
+        --accent-9: #7c2d12;
+        --accent-bg: rgba(234, 88, 12, 0.08);
+        --accent-bd: rgba(234, 88, 12, 0.25);
+        --red: #ef4444;
+        --red-lt: #f87171;
+        --green: #4ade80;
+        --sidebar-bg: #111113;
+        --pre-bg: #09090b;
+        --kbd-bg: #18181b;
+        --kbd-border: #3f3f46;
+        --dot-color: rgba(234, 88, 12, 0.04);
+        --glow: 0 0 20px rgba(234, 88, 12, 0.3);
+      }
+      :root[data-scheme="light"] {
+        --bg: #f8fafc;
+        --bg-card: #ffffff;
+        --border: #e2e8f0;
+        --border-dim: #f1f5f9;
+        --text: #1e293b;
+        --text-muted: #64748b;
+        --text-dim: #94a3b8;
+        --text-vdim: #cbd5e1;
+        --accent: #6366f1;
+        --accent-6: #4f46e5;
+        --accent-9: #312e81;
+        --accent-bg: rgba(99, 102, 241, 0.08);
+        --accent-bd: rgba(99, 102, 241, 0.25);
+        --red: #ef4444;
+        --red-lt: #f87171;
+        --green: #22c55e;
+        --sidebar-bg: #f1f5f9;
+        --pre-bg: #f8fafc;
+        --kbd-bg: #f1f5f9;
+        --kbd-border: #e2e8f0;
+        --dot-color: rgba(99, 102, 241, 0.05);
+        --glow: none;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        min-height: 100vh;
+        background-image: radial-gradient(
+          circle,
+          var(--dot-color) 1px,
+          transparent 1px
+        );
+        background-size: 30px 30px;
+      }
+      .theme-switcher {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 100;
+        display: flex;
+        gap: 6px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 8px;
+      }
+      .theme-btn {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          transform 0.1s;
+      }
+      .theme-btn:hover {
+        transform: scale(1.15);
+      }
+      .theme-btn.active {
+        border-color: var(--accent);
+      }
+      .theme-btn[data-s="dark"] {
+        background: #09090b;
+        outline: 1px solid #3f3f46;
+        outline-offset: 1px;
+      }
+      .theme-btn[data-s="light"] {
+        background: #f8fafc;
+        outline: 1px solid #e2e8f0;
+        outline-offset: 1px;
+      }
+
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 220px;
+        height: 100vh;
+        background: var(--sidebar-bg);
+        border-right: 1px solid var(--border-dim);
+        padding: 28px 0;
+        overflow-y: auto;
+        z-index: 10;
+      }
+      .sidebar-logo {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 900;
+        font-size: 18px;
+        color: var(--accent-6);
+        text-shadow: var(--glow);
+        padding: 0 20px 24px;
+        border-bottom: 1px solid var(--border-dim);
+        display: block;
+        letter-spacing: -0.02em;
+      }
+      .sidebar-sub {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 9px;
+        color: var(--text-dim);
+        font-weight: 400;
+        display: block;
+        margin-top: 3px;
+        letter-spacing: 0.05em;
+      }
+      .nav-section-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-vdim);
+        padding: 20px 20px 8px;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 20px;
+        font-size: 13px;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition:
+          color 0.15s,
+          background 0.15s;
+        cursor: pointer;
+      }
+      .nav-link:hover {
+        color: var(--accent);
+        background: var(--accent-bg);
+      }
+      .nav-link .num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        color: var(--text-vdim);
+        min-width: 16px;
+      }
+
+      .main {
+        margin-left: 220px;
+        padding: 48px 48px 80px;
+        max-width: 960px;
+      }
+      .page-header {
+        margin-bottom: 40px;
+      }
+      .page-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--accent);
+        margin-bottom: 10px;
+      }
+      .page-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2.4rem;
+        font-weight: 900;
+        color: var(--accent-6);
+        text-shadow: var(--glow);
+        letter-spacing: -0.02em;
+        line-height: 1;
+        margin-bottom: 10px;
+      }
+      .page-meta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .meta-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 3px 10px;
+      }
+
+      .section {
+        margin-bottom: 48px;
+        scroll-margin-top: 24px;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-dim);
+      }
+      .section-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        background: var(--accent-bg);
+        border: 1px solid var(--accent-bd);
+        border-radius: 5px;
+        padding: 2px 8px;
+        min-width: 32px;
+        text-align: center;
+      }
+      .section-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .new-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: var(--accent-bg);
+        border: 1px solid var(--accent-bd);
+        border-radius: 4px;
+        padding: 1px 6px;
+        letter-spacing: 0.1em;
+      }
+      .rec-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--green);
+        background: rgba(74, 222, 128, 0.08);
+        border: 1px solid rgba(74, 222, 128, 0.25);
+        border-radius: 4px;
+        padding: 1px 6px;
+        letter-spacing: 0.1em;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+      }
+      .card-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .card-grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+      thead tr {
+        background: var(--sidebar-bg);
+      }
+      th {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-dim);
+        padding: 9px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 9px 14px;
+        border-bottom: 1px solid var(--border-dim);
+        color: var(--text-muted);
+        vertical-align: top;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: var(--accent-bg);
+      }
+      td code {
+        color: var(--accent);
+      }
+      .td-green {
+        color: var(--green);
+      }
+      .td-red {
+        color: var(--red-lt);
+      }
+
+      pre {
+        background: var(--pre-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 1.8;
+        color: var(--text-muted);
+        overflow-x: auto;
+        margin-bottom: 14px;
+      }
+      .kw {
+        color: var(--accent);
+      }
+      .fn {
+        color: var(--accent-6);
+      }
+      .str {
+        color: var(--green);
+      }
+      .cm {
+        color: var(--text-vdim);
+      }
+      .num {
+        color: #60a5fa;
+      }
+      .tp {
+        color: #c084fc;
+      }
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        background: var(--accent-bg);
+        color: var(--accent);
+        border: 1px solid var(--accent-bd);
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .file-tree {
+        background: var(--pre-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 2;
+      }
+      .ft-dir {
+        color: var(--accent);
+      }
+      .ft-file {
+        color: var(--text-muted);
+      }
+      .ft-cm {
+        color: var(--text-vdim);
+      }
+      .ft-new {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .note {
+        background: var(--accent-bg);
+        border-left: 3px solid var(--accent-6);
+        border-radius: 0 7px 7px 0;
+        padding: 10px 14px;
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 14px;
+      }
+
+      kbd {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        background: var(--kbd-bg);
+        border: 1px solid var(--kbd-border);
+        border-bottom: 2px solid var(--kbd-border);
+        border-radius: 5px;
+        padding: 2px 7px;
+        color: var(--text-muted);
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid var(--border-dim);
+        margin: 32px 0;
+      }
+      h3 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+        margin: 20px 0 10px;
+      }
+      ul.spec-list {
+        padding-left: 18px;
+        color: var(--text-muted);
+        line-height: 2;
+        font-size: 13px;
+      }
+      ul.spec-list li strong {
+        color: var(--text);
+      }
+
+      /* Option header with letter badge */
+      .option-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .option-letter {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent);
+        background: var(--accent-bg);
+        border: 1px solid var(--accent-bd);
+        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .option-name {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .option-tagline {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      /* ASCII wireframe */
+      .wireframe {
+        background: var(--pre-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        line-height: 1.7;
+        color: var(--text-dim);
+        overflow-x: auto;
+        margin-bottom: 14px;
+        white-space: pre;
+      }
+      .wf-accent {
+        color: var(--accent);
+      }
+      .wf-dim {
+        color: var(--text-vdim);
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          display: none;
+        }
+        .main {
+          margin-left: 0;
+          padding: 24px 20px 60px;
+        }
+        .card-grid-2,
+        .card-grid-3 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="theme-switcher">
+      <div
+        class="theme-btn"
+        data-s="dark"
+        title="Dark"
+        onclick="setScheme('dark')"
+      ></div>
+      <div
+        class="theme-btn"
+        data-s="light"
+        title="Light"
+        onclick="setScheme('light')"
+      ></div>
+    </div>
+
+    <div class="layout">
+      <nav class="sidebar">
+        <span class="sidebar-logo">
+          CYBERTYPE
+          <span class="sidebar-sub">Design Comparison · v1.0 · 2026-04-28</span>
+        </span>
+        <div class="nav-section-label">Contents</div>
+        <a class="nav-link" href="#s1"><span class="num">01</span> Context</a>
+        <a class="nav-link" href="#s2"
+          ><span class="num">02</span> Option A — Modal</a
+        >
+        <a class="nav-link" href="#s3"
+          ><span class="num">03</span> Option B — Sidebar Drawer</a
+        >
+        <a class="nav-link" href="#s4"
+          ><span class="num">04</span> Option C — Separate View</a
+        >
+        <a class="nav-link" href="#s5"
+          ><span class="num">05</span> Side-by-Side Comparison</a
+        >
+        <a class="nav-link" href="#s6"
+          ><span class="num">06</span> File Changes Required</a
+        >
+        <a class="nav-link" href="#s7"
+          ><span class="num">07</span> Recommendation</a
+        >
+      </nav>
+
+      <main class="main">
+        <div class="page-header">
+          <div class="page-label">Design Comparison</div>
+          <div class="page-title">History Access Options</div>
+          <div class="page-meta">
+            <span class="meta-badge">CYBERTYPE</span>
+            <span class="meta-badge">React 18 + Vite + Tailwind v4</span>
+            <span class="meta-badge">2026-04-28</span>
+          </div>
+        </div>
+
+        <!-- S1: Context -->
+        <div class="section" id="s1">
+          <div class="section-header">
+            <span class="section-num">01</span>
+            <span class="section-title">Context</span>
+          </div>
+          <div class="note">
+            Currently, history and personal best are only visible on the
+            <strong>results screen</strong> — the screen that appears after
+            finishing a test. There is no way to check them from the main (idle)
+            screen without completing a test first.
+          </div>
+          <p
+            style="
+              color: var(--text-muted);
+              font-size: 13px;
+              margin-bottom: 14px;
+            "
+          >
+            Three options are on the table. Each offers a different trade-off
+            between discoverability, complexity, and disruption to the existing
+            minimalist layout.
+          </p>
+          <div class="flow">
+            <div class="flow-state idle">idle</div>
+            <span class="flow-arrow">→</span>
+            <span class="flow-label">start typing</span>
+            <span class="flow-arrow">→</span>
+            <div class="flow-state running">running</div>
+            <span class="flow-arrow">→</span>
+            <span class="flow-label">finish</span>
+            <span class="flow-arrow">→</span>
+            <div class="flow-state paused">results</div>
+            <span class="flow-arrow" style="color: var(--red-lt)"
+              >← history only visible here</span
+            >
+          </div>
+        </div>
+
+        <!-- S2: Option A -->
+        <div class="section" id="s2">
+          <div class="section-header">
+            <span class="section-num">02</span>
+            <span class="section-title">Option A — Stats Modal</span>
+            <span class="new-badge">overlay</span>
+          </div>
+
+          <div class="option-header">
+            <div class="option-letter">A</div>
+            <div>
+              <div class="option-name">Stats Modal</div>
+              <div class="option-tagline">
+                A small icon button in the header opens a centered modal overlay
+                with history + best score.
+              </div>
+            </div>
+          </div>
+
+          <h3>Layout Wireframe</h3>
+          <div class="wireframe">
+            ┌────────────────────────────────────────────┐ │ CYBERTYPE EN │ ID
+            15s 30s 60s <span class="wf-accent">[📊]</span> │ ← icon in header
+            ├────────────────────────────────────────────┤ │ │ │
+            ░░░░░░░░░░░░░░░░░░░░░░░ │ │ ░░░ typing arena ░░░░ │ │
+            ░░░░░░░░░░░░░░░░░░░░░░░ │ │ │
+            └────────────────────────────────────────────┘ ┌── when icon clicked
+            ───────────┐ │ STATS &amp; HISTORY × │ │
+            ───────────────────────────── │ │ Personal Best
+            <span class="wf-accent">142 WPM</span> 97% │ │ │ │ Recent Tests │ │
+            ① 30s 142 wpm 97% EN │ │ ② 60s 138 wpm 95% EN │ │ ③ 15s 130 wpm 99%
+            ID │ │ ④ 30s 125 wpm 93% EN │ │ ⑤ 60s 120 wpm 90% ID │
+            └────────────────────────────────┘
+          </div>
+
+          <div class="card-grid-2">
+            <div class="card">
+              <h3 style="color: var(--green)">Pros</h3>
+              <ul class="spec-list">
+                <li>Main layout <strong>completely unchanged</strong></li>
+                <li>Accessible any time (idle, paused, results)</li>
+                <li>Header icon is a familiar UX pattern</li>
+                <li>Minimal file changes — one new component</li>
+                <li>Does not add a new app "view" or route</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 style="color: var(--red-lt)">Cons</h3>
+              <ul class="spec-list">
+                <li>Modal feels slightly heavy for a minimalist app</li>
+                <li>Icon in header may clutter the clean bar</li>
+                <li>Backdrop dims the typing arena</li>
+                <li>
+                  Needs <kbd>Esc</kbd> handling (conflict with reshuffle?)
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <h3>Trigger &amp; Dismiss</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Behaviour</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Click <code>[📊]</code> icon in header</td>
+                <td>Opens modal</td>
+              </tr>
+              <tr>
+                <td>Click backdrop</td>
+                <td>Closes modal</td>
+              </tr>
+              <tr>
+                <td><kbd>Esc</kbd></td>
+                <td>
+                  Closes modal
+                  <em>(idle only — during test, Esc still reshuffles)</em>
+                </td>
+              </tr>
+              <tr>
+                <td>Click <code>×</code> button</td>
+                <td>Closes modal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- S3: Option B -->
+        <div class="section" id="s3">
+          <div class="section-header">
+            <span class="section-num">03</span>
+            <span class="section-title">Option B — Sidebar Drawer</span>
+            <span class="new-badge">drawer</span>
+          </div>
+
+          <div class="option-header">
+            <div class="option-letter">B</div>
+            <div>
+              <div class="option-name">Sidebar Drawer</div>
+              <div class="option-tagline">
+                A panel slides in from the right side of the screen, pushing or
+                overlaying the main content.
+              </div>
+            </div>
+          </div>
+
+          <h3>Layout Wireframe</h3>
+          <div class="wireframe">
+            ┌──────────────────────────────┬──────────────┐ │ CYBERTYPE EN│ID
+            15s 30s <span class="wf-accent">[≡]</span> │
+            <span class="wf-accent">STATS</span> × │
+            ├──────────────────────────────┤ ──────────── │ │ │ Best │ │
+            ░░░░░░░░░░░░░░░░░ │ <span class="wf-accent">142 WPM 97%</span> │ │
+            ░░ typing arena ░░ │ │ │ ░░░░░░░░░░░░░░░░░ │ History │ │ │ ① 142w
+            97% │ │ │ ② 138w 95% │ │ │ ③ 130w 99% │ │ │ ④ 125w 93% │ │ │ ⑤ 120w
+            90% │ └──────────────────────────────┴──────────────┘
+          </div>
+
+          <div class="card-grid-2">
+            <div class="card">
+              <h3 style="color: var(--green)">Pros</h3>
+              <ul class="spec-list">
+                <li>Content stays visible alongside the test</li>
+                <li>No backdrop — typing arena stays bright</li>
+                <li>Natural scroll for long history lists</li>
+                <li>Feels modern and non-intrusive</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 style="color: var(--red-lt)">Cons</h3>
+              <ul class="spec-list">
+                <li><strong>Narrows</strong> the typing arena when open</li>
+                <li>More CSS complexity (slide animation, overflow)</li>
+                <li>Can feel cramped on smaller screens</li>
+                <li>
+                  Two more components needed (<code>Drawer</code> +
+                  <code>DrawerContent</code>)
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <h3>Trigger &amp; Dismiss</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Behaviour</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Click <code>[≡]</code> icon in header</td>
+                <td>Slides drawer in from right</td>
+              </tr>
+              <tr>
+                <td>Click outside drawer</td>
+                <td>Slides drawer out</td>
+              </tr>
+              <tr>
+                <td>Click <code>×</code> inside drawer</td>
+                <td>Slides drawer out</td>
+              </tr>
+              <tr>
+                <td>Test starts (keypress)</td>
+                <td>Drawer auto-closes to give full width</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- S4: Option C -->
+        <div class="section" id="s4">
+          <div class="section-header">
+            <span class="section-num">04</span>
+            <span class="section-title">Option C — Separate View</span>
+            <span class="new-badge">view</span>
+          </div>
+
+          <div class="option-header">
+            <div class="option-letter">C</div>
+            <div>
+              <div class="option-name">Separate View</div>
+              <div class="option-tagline">
+                A third app "screen" (alongside <code>typing</code> and
+                <code>results</code>) dedicated entirely to history and stats.
+              </div>
+            </div>
+          </div>
+
+          <h3>App View Flow</h3>
+          <div class="flow">
+            <div class="flow-state idle">
+              typing
+              <span style="font-size: 10px; color: var(--text-dim)"
+                >(idle/running/paused)</span
+              >
+            </div>
+            <span class="flow-arrow">→</span>
+            <span class="flow-label">finish</span>
+            <span class="flow-arrow">→</span>
+            <div class="flow-state paused">results</div>
+            <span class="flow-arrow">→</span>
+            <span class="flow-label">retry</span>
+            <span class="flow-arrow">→</span>
+            <div class="flow-state idle">typing</div>
+          </div>
+          <div class="flow" style="margin-top: -4px">
+            <div class="flow-state idle">typing</div>
+            <span class="flow-arrow">→</span>
+            <span class="flow-label"><kbd>H</kbd> or header link</span>
+            <span class="flow-arrow">→</span>
+            <div class="flow-state running">history view</div>
+            <span class="flow-arrow">→</span>
+            <span class="flow-label">back</span>
+            <span class="flow-arrow">→</span>
+            <div class="flow-state idle">typing</div>
+          </div>
+
+          <h3>Layout Wireframe</h3>
+          <div class="wireframe">
+            ┌────────────────────────────────────────────┐ │ CYBERTYPE EN │ ID
+            15s 30s 60s │ │ <span class="wf-accent">[History]</span> │ ← nav
+            link ├────────────────────────────────────────────┤ │ │ │ Personal
+            Best ────────────────────────── │ │
+            <span class="wf-accent">142 WPM · 97% Accuracy · 60s · EN</span> │ │
+            │ │ Recent Tests ─────────────────────────── │ │ # Mode WPM Acc Lang
+            Date │ │ 1 60s 142 97% EN Apr 27 │ │ 2 30s 138 95% EN Apr 27 │ │ 3
+            15s 130 99% ID Apr 26 │ │ 4 30s 125 93% EN Apr 26 │ │ 5 60s 120 90%
+            ID Apr 25 │ │ │ │ [← Back to typing] │
+            └────────────────────────────────────────────┘
+          </div>
+
+          <div class="card-grid-2">
+            <div class="card">
+              <h3 style="color: var(--green)">Pros</h3>
+              <ul class="spec-list">
+                <li>Cleanest history display — full width, full context</li>
+                <li>Easiest to extend (charts, filters, export later)</li>
+                <li>No overlay/backdrop complexity</li>
+                <li>No layout shift on the typing screen</li>
+                <li>Could add a WPM trend chart in future</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 style="color: var(--red-lt)">Cons</h3>
+              <ul class="spec-list">
+                <li>Navigates away from the test — higher friction</li>
+                <li>More code: new view component + view state</li>
+                <li>
+                  Requires <code>AppView</code> type to gain a third value
+                </li>
+                <li>Header needs a new persistent nav link</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5: Comparison Table -->
+        <div class="section" id="s5">
+          <div class="section-header">
+            <span class="section-num">05</span>
+            <span class="section-title">Side-by-Side Comparison</span>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Criterion</th>
+                <th>A — Modal</th>
+                <th>B — Drawer</th>
+                <th>C — Separate View</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Access friction</strong></td>
+                <td class="td-green">Low — one click</td>
+                <td class="td-green">Low — one click</td>
+                <td class="td-red">Medium — leaves screen</td>
+              </tr>
+              <tr>
+                <td><strong>Layout disruption</strong></td>
+                <td class="td-green">None (overlay)</td>
+                <td class="td-red">Narrows typing arena</td>
+                <td class="td-green">None (separate view)</td>
+              </tr>
+              <tr>
+                <td><strong>Display space</strong></td>
+                <td class="td-red">Limited (modal size)</td>
+                <td>Medium (panel width)</td>
+                <td class="td-green">Full screen</td>
+              </tr>
+              <tr>
+                <td><strong>Implementation effort</strong></td>
+                <td class="td-green">Low</td>
+                <td>Medium</td>
+                <td>Medium</td>
+              </tr>
+              <tr>
+                <td><strong>Extensibility</strong></td>
+                <td class="td-red">Cramped for charts</td>
+                <td>Moderate</td>
+                <td class="td-green">Easiest to extend</td>
+              </tr>
+              <tr>
+                <td><strong>Cyberpunk aesthetic fit</strong></td>
+                <td class="td-green">Clean, fast popup</td>
+                <td class="td-green">Sleek slide-in</td>
+                <td class="td-green">Full HUD view</td>
+              </tr>
+              <tr>
+                <td><strong>Esc key conflict risk</strong></td>
+                <td class="td-red">Yes (idle state)</td>
+                <td class="td-green">No</td>
+                <td class="td-green">No</td>
+              </tr>
+              <tr>
+                <td><strong>Works during active test</strong></td>
+                <td>Yes (but dismisses)</td>
+                <td class="td-red">Auto-closes on keypress</td>
+                <td class="td-red">No (navigates away)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- S6: File Changes -->
+        <div class="section" id="s6">
+          <div class="section-header">
+            <span class="section-num">06</span>
+            <span class="section-title">File Changes Required</span>
+          </div>
+
+          <h3>Option A — Modal</h3>
+          <div class="file-tree">
+            <div><span class="ft-dir">src/components/</span></div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-new">StatsModal.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— new: modal overlay with history + best ★</span
+              >
+            </div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">Header.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— add icon button, pass isOpen/onOpen props</span
+              >
+            </div>
+            <div><span class="ft-dir">src/</span></div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">useApp.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— add isStatsOpen state + toggle handler</span
+              >
+            </div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">App.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— render &lt;StatsModal&gt; conditionally</span
+              >
+            </div>
+          </div>
+
+          <h3>Option B — Sidebar Drawer</h3>
+          <div class="file-tree">
+            <div><span class="ft-dir">src/components/</span></div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-new">StatsDrawer.tsx</span>
+              &nbsp;<span class="ft-cm">— new: sliding panel component ★</span>
+            </div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">Header.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— add hamburger/icon button</span
+              >
+            </div>
+            <div><span class="ft-dir">src/</span></div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">useApp.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— isDrawerOpen state; auto-close on test start</span
+              >
+            </div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">App.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— render &lt;StatsDrawer&gt;; adjust layout classes</span
+              >
+            </div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">index.css</span> &nbsp;<span
+                class="ft-cm"
+                >— slide-in animation keyframes</span
+              >
+            </div>
+          </div>
+
+          <h3>Option C — Separate View</h3>
+          <div class="file-tree">
+            <div><span class="ft-dir">src/components/</span></div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-new">HistoryView.tsx</span>
+              &nbsp;<span class="ft-cm"
+                >— new: full-screen history + best page ★</span
+              >
+            </div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">Header.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— add "History" nav link</span
+              >
+            </div>
+            <div><span class="ft-dir">src/</span></div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">useApp.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— AppView type: 'typing' | 'results' | 'history'</span
+              >
+            </div>
+            <div>
+              &nbsp;&nbsp;<span class="ft-file">App.tsx</span> &nbsp;<span
+                class="ft-cm"
+                >— render &lt;HistoryView&gt; when view === 'history'</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- S7: Recommendation -->
+        <div class="section" id="s7">
+          <div class="section-header">
+            <span class="section-num">07</span>
+            <span class="section-title">Recommendation</span>
+            <span class="rec-badge">suggested</span>
+          </div>
+
+          <div class="note">
+            <strong>Recommended: Option A (Stats Modal)</strong> — lowest
+            effort, zero layout disruption, and fits the minimalist cyberpunk
+            aesthetic. The <kbd>Esc</kbd> conflict is trivially handled by only
+            intercepting it when the modal is open.
+          </div>
+
+          <div class="card-grid-3">
+            <div class="card">
+              <div
+                style="
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  font-size: 11px;
+                  color: var(--text-dim);
+                  margin-bottom: 8px;
+                "
+              >
+                Best for simplicity
+              </div>
+              <div
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-size: 1.1rem;
+                  font-weight: 700;
+                  color: var(--accent);
+                "
+              >
+                A — Modal
+              </div>
+              <div
+                style="
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  margin-top: 6px;
+                "
+              >
+                Minimal code, no layout change, quick to ship.
+              </div>
+            </div>
+            <div class="card">
+              <div
+                style="
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  font-size: 11px;
+                  color: var(--text-dim);
+                  margin-bottom: 8px;
+                "
+              >
+                Best for aesthetics
+              </div>
+              <div
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-size: 1.1rem;
+                  font-weight: 700;
+                  color: var(--accent);
+                "
+              >
+                B — Drawer
+              </div>
+              <div
+                style="
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  margin-top: 6px;
+                "
+              >
+                Sleek slide-in feels most cyberpunk, good side panel.
+              </div>
+            </div>
+            <div class="card">
+              <div
+                style="
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  font-size: 11px;
+                  color: var(--text-dim);
+                  margin-bottom: 8px;
+                "
+              >
+                Best for future growth
+              </div>
+              <div
+                style="
+                  font-family: &quot;Space Grotesk&quot;, sans-serif;
+                  font-size: 1.1rem;
+                  font-weight: 700;
+                  color: var(--accent);
+                "
+              >
+                C — Separate View
+              </div>
+              <div
+                style="
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  margin-top: 6px;
+                "
+              >
+                Full screen, easy to add charts/filters later.
+              </div>
+            </div>
+          </div>
+
+          <p
+            style="color: var(--text-muted); font-size: 13px; margin-top: 14px"
+          >
+            Pick whichever option fits your preference — all three are
+            well-scoped and implementable in a single session. Let me know which
+            one you want and I'll build it.
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      function setScheme(s) {
+        document.documentElement.setAttribute("data-scheme", s);
+        document
+          .querySelectorAll(".theme-btn")
+          .forEach((b) => b.classList.toggle("active", b.dataset.s === s));
+        localStorage.setItem("doc-scheme", s);
+      }
+      const saved = localStorage.getItem("doc-scheme");
+      const preferred =
+        saved ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-scheme", preferred);
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .querySelectorAll(".theme-btn")
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.s === preferred)
+          );
+      });
+    </script>
+  </body>
+</html>
