@@ -1,0 +1,81 @@
+/* ==========================================================================
+   STRATA — Field Research Console
+   tokens.css — the single source of truth. Every other file (Tailwind preset,
+   TS tokens, components) maps back to these custom properties. Re-theme by
+   editing the values here; nothing downstream hardcodes a hex.
+
+   Two tiers:
+     --s-*        primitives  (raw values, no intent)
+     --strata-*   semantic    (intent-based aliases — use THESE in components)
+   ========================================================================== */
+
+:root {
+  /* -- Tier 1: primitives ------------------------------------------------- */
+  --s-slate-950: #0b0f14; /* ink   — instrument base                        */
+  --s-slate-900: #121822; /* panel — cards                                  */
+  --s-slate-850: #1a2230; /* panel hover / soft fill                        */
+  --s-slate-800: #232c3a; /* line  — 1px hairlines                          */
+  --s-slate-400: #76869c; /* muted text                                     */
+  --s-slate-200: #cfd8e3; /* primary text                                   */
+  --s-amber-500: #f5a623; /* the one warm signal                           */
+  --s-amber-950: #3a2b12; /* amber fill for unlocked / active surfaces      */
+  --s-teal-400: #2dd4bf; /* informational telemetry                        */
+  --s-emerald-400: #34d399; /* "complete" — reserved, one meaning only      */
+  --s-rose-500: #f43f5e; /* streak / urgency                               */
+  --s-paper-100: #ece4d3; /* physical field-note annotation, used sparingly */
+
+  /* -- Tier 2: semantic — color ------------------------------------------ */
+  --strata-bg: var(--s-slate-950);
+  --strata-panel: var(--s-slate-900);
+  --strata-panel-hover: var(--s-slate-850);
+  --strata-line: var(--s-slate-800);
+
+  --strata-text: var(--s-slate-200);
+  --strata-text-muted: var(--s-slate-400);
+  --strata-text-on-accent: var(--s-slate-950);
+
+  --strata-accent: var(--s-amber-500); /* the ONLY "active" colour    */
+  --strata-accent-soft: var(--s-amber-950);
+
+  --strata-status-idle: var(--s-slate-800);
+  --strata-status-progress: var(--s-amber-500);
+  --strata-status-complete: var(--s-emerald-400);
+  --strata-status-streak: var(--s-rose-500);
+  --strata-status-info: var(--s-teal-400);
+
+  --strata-reward-locked-bg: var(--s-slate-850);
+  --strata-reward-locked-border: var(--s-slate-800);
+  --strata-reward-unlocked-bg: var(--s-amber-950);
+  --strata-reward-unlocked-border: var(--s-amber-500);
+
+  --strata-paper: var(--s-paper-100);
+
+  /* -- Tier 2: semantic — type ------------------------------------------- */
+  --strata-font-display: "Fraunces", Georgia, serif;
+  --strata-font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --strata-font-data: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  --strata-tracking-data: 0.02em; /* mono needs a touch of air              */
+
+  /* -- Spacing — 4 / 8 / 16 / 24 / 40, tighter than a marketing site ----- */
+  --strata-space-xs: 4px;
+  --strata-space-sm: 8px;
+  --strata-space-md: 16px;
+  --strata-space-lg: 24px;
+  --strata-space-xl: 40px;
+
+  /* -- Radius — 10px default; nothing floats ----------------------------- */
+  --strata-radius-sm: 6px;
+  --strata-radius-md: 10px;
+  --strata-radius-lg: 14px;
+  --strata-radius-full: 9999px;
+
+  /* -- Motion — one signature "stamp", everything else a plain ease ------ */
+  --strata-ease: cubic-bezier(0.2, 0, 0, 1);
+  --strata-ease-stamp: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --strata-dur-fast: 200ms;
+  --strata-dur-stamp: 260ms;
+  --strata-transition: var(--strata-dur-fast) var(--strata-ease);
+}
+
+/* Depth is one flat luminance step + a hairline. No shadow tokens exist on
+   purpose — a console flush-mounts its panels, it doesn't float them. */
