@@ -22,17 +22,14 @@ function ActiveWord({ word, currentInput, caretStyle }: ActiveWordProps) {
     if (ci < caretPos) {
       const isCorrect = currentInput[ci] === chars[ci];
       nodes.push(
-        <span
-          key={ci}
-          className={isCorrect ? "text-orange-400" : "text-red-400"}
-        >
+        <span key={ci} className={isCorrect ? "text-signal" : "text-danger"}>
           {chars[ci]}
         </span>
       );
     } else {
       if (isAtCaret) nodes.push(<Caret key="caret" style={caretStyle} />);
       nodes.push(
-        <span key={ci} className="text-zinc-600">
+        <span key={ci} className="text-char-untyped">
           {chars[ci]}
         </span>
       );
@@ -41,7 +38,7 @@ function ActiveWord({ word, currentInput, caretStyle }: ActiveWordProps) {
 
   for (let ci = chars.length; ci < caretPos; ci++) {
     nodes.push(
-      <span key={`ov-${ci}`} className="text-red-400">
+      <span key={`ov-${ci}`} className="text-danger">
         {currentInput[ci]}
       </span>
     );
@@ -67,7 +64,7 @@ function LockedErrorWord({ word, typed }: LockedErrorWordProps) {
       nodes.push(
         <span
           key={ci}
-          className={`underline decoration-red-800 underline-offset-4 ${isCorrect ? "text-orange-500" : "text-red-400"}`}
+          className={`decoration-danger underline underline-offset-4 ${isCorrect ? "text-signal" : "text-danger"}`}
         >
           {chars[ci]}
         </span>
@@ -76,7 +73,7 @@ function LockedErrorWord({ word, typed }: LockedErrorWordProps) {
       nodes.push(
         <span
           key={ci}
-          className="text-zinc-700 underline decoration-red-800 underline-offset-4"
+          className="text-char-upcoming decoration-danger underline underline-offset-4"
         >
           {chars[ci]}
         </span>
@@ -88,7 +85,7 @@ function LockedErrorWord({ word, typed }: LockedErrorWordProps) {
     nodes.push(
       <span
         key={`ov-${ci}`}
-        className="text-red-400 underline decoration-red-800 underline-offset-4"
+        className="text-danger decoration-danger underline underline-offset-4"
       >
         {typed[ci]}
       </span>
@@ -195,12 +192,12 @@ export function WordDisplay({
           }
 
           const baseClass = isActive
-            ? "text-zinc-200"
+            ? "text-text-primary"
             : isLockedError
               ? ""
               : state === "locked-correct"
-                ? "text-orange-500 text-glow"
-                : "text-zinc-700";
+                ? "text-signal text-glow"
+                : "text-char-upcoming";
 
           return (
             <span

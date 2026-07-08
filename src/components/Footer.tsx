@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="py-6 text-center font-mono text-xs text-zinc-800">
+    <footer className="text-line py-6 text-center font-mono text-xs">
       rush
     </footer>
   );

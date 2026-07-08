@@ -13,11 +13,11 @@ interface StatCardProps {
 function StatCard({
   label,
   value,
-  valueClass = "text-zinc-200",
+  valueClass = "text-text-primary",
 }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-      <div className="mb-1 font-mono text-xs tracking-widest text-zinc-600 uppercase">
+    <div className="border-line bg-panel-raised rounded-xl border p-5">
+      <div className="text-text-muted mb-1 font-mono text-xs tracking-widest uppercase">
         {label}
       </div>
       <div className={`font-mono text-2xl font-bold ${valueClass}`}>
@@ -75,7 +75,7 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
     <div className="mx-auto w-full max-w-3xl px-4 py-10">
       {/* Terminated banner */}
       {terminated && (
-        <div className="mb-6 rounded-lg border border-red-800 bg-red-950/30 px-4 py-3 font-mono text-sm tracking-widest text-red-400 uppercase">
+        <div className="border-danger/40 bg-danger/10 text-danger mb-6 rounded-lg border px-4 py-3 font-mono text-sm tracking-widest uppercase">
           ☠ terminated — sudden death
         </div>
       )}
@@ -83,15 +83,15 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
       {/* Primary WPM */}
       <div className="mb-8 flex items-end gap-4">
         <div>
-          <div className="mb-1 font-mono text-xs tracking-widest text-orange-600 uppercase">
+          <div className="text-signal mb-1 font-mono text-xs tracking-widest uppercase">
             wpm
           </div>
-          <div className="text-glow font-mono text-7xl leading-none font-bold text-orange-500">
+          <div className="text-glow text-signal font-mono text-7xl leading-none font-bold">
             {wpm}
           </div>
         </div>
         {isNewBest && (
-          <div className="mb-2 animate-pulse font-mono text-xs tracking-widest text-orange-400 uppercase">
+          <div className="text-success mb-2 animate-pulse font-mono text-xs tracking-widest uppercase">
             new best!
           </div>
         )}
@@ -103,9 +103,9 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
         <StatCard
           label="consistency"
           value={`${consistency}%`}
-          valueClass="text-blue-400"
+          valueClass="text-info"
         />
-        <StatCard label="errors" value={errors} valueClass="text-red-400" />
+        <StatCard label="errors" value={errors} valueClass="text-danger" />
         <StatCard label="raw wpm" value={rawWpm} />
         <StatCard
           label={mode === "time" ? "duration" : "time"}
@@ -115,8 +115,8 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
 
       {/* WPM Chart */}
       {wpmHistory.length > 1 && (
-        <div className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          <div className="mb-3 font-mono text-xs tracking-widest text-zinc-600 uppercase">
+        <div className="border-line bg-panel mb-8 rounded-xl border p-4">
+          <div className="text-text-muted mb-3 font-mono text-xs tracking-widest uppercase">
             wpm over time
           </div>
           <WpmLineChart data={wpmHistory} history={_history} />
@@ -125,8 +125,8 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
 
       {/* Keyboard Heatmap */}
       {Object.keys(keyErrors).length > 0 && (
-        <div className="mb-8 flex flex-col items-center rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          <div className="mb-4 self-start font-mono text-xs tracking-widest text-zinc-600 uppercase">
+        <div className="border-line bg-panel mb-8 flex flex-col items-center rounded-xl border p-4">
+          <div className="text-text-muted mb-4 self-start font-mono text-xs tracking-widest uppercase">
             key errors
           </div>
           <KeyboardHeatmap keyErrors={keyErrors} />
@@ -137,20 +137,20 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Best score */}
         {_best && (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-            <div className="mb-3 font-mono text-xs tracking-widest text-orange-600 uppercase">
+          <div className="border-line bg-panel rounded-xl border p-4">
+            <div className="text-signal mb-3 font-mono text-xs tracking-widest uppercase">
               personal best
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="font-mono text-3xl font-bold text-orange-500">
+              <span className="text-signal font-mono text-3xl font-bold">
                 {_best.wpm}
               </span>
-              <span className="font-mono text-xs text-zinc-600">wpm</span>
-              <span className="ml-auto font-mono text-xs text-zinc-700">
+              <span className="text-text-muted font-mono text-xs">wpm</span>
+              <span className="text-text-muted ml-auto font-mono text-xs">
                 {_best.accuracy}% acc
               </span>
             </div>
-            <div className="mt-1 font-mono text-xs text-zinc-700">
+            <div className="text-text-muted mt-1 font-mono text-xs">
               {_best.mode} · {_best.lang.toUpperCase()} ·{" "}
               {formatDate(_best.timestamp)}
             </div>
@@ -159,21 +159,21 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
 
         {/* History */}
         {_history.length > 0 && (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-            <div className="mb-3 font-mono text-xs tracking-widest text-zinc-600 uppercase">
+          <div className="border-line bg-panel rounded-xl border p-4">
+            <div className="text-text-muted mb-3 font-mono text-xs tracking-widest uppercase">
               recent
             </div>
             <div className="flex flex-col gap-1.5">
               {_history.map((h) => (
                 <div key={h.id} className="flex items-center font-mono text-xs">
-                  <span className="w-10 text-zinc-300 tabular-nums">
+                  <span className="text-text-primary w-10 tabular-nums">
                     {h.wpm}
                   </span>
-                  <span className="mr-3 text-zinc-600">wpm</span>
-                  <span className="w-10 text-zinc-700 tabular-nums">
+                  <span className="text-text-muted mr-3">wpm</span>
+                  <span className="text-text-muted w-10 tabular-nums">
                     {h.accuracy}%
                   </span>
-                  <span className="ml-auto text-zinc-800">
+                  <span className="text-text-muted ml-auto">
                     {formatDate(h.timestamp)}
                   </span>
                 </div>
@@ -187,13 +187,13 @@ export function ResultsScreen(_props: ResultsScreenProps = {}) {
       <div className="flex gap-3">
         <button
           onClick={_onRetry}
-          className="rounded-lg bg-orange-600 px-6 py-2.5 font-mono text-sm text-white transition-colors hover:bg-orange-500"
+          className="bg-signal text-on-signal rounded-lg px-6 py-2.5 font-mono text-sm transition-all hover:brightness-95"
         >
           retry same
         </button>
         <button
           onClick={_onNew}
-          className="rounded-lg border border-zinc-700 bg-zinc-800 px-6 py-2.5 font-mono text-sm text-zinc-300 transition-colors hover:bg-zinc-700"
+          className="border-line bg-panel-raised text-text-primary hover:bg-line rounded-lg border px-6 py-2.5 font-mono text-sm transition-colors"
         >
           new test
         </button>

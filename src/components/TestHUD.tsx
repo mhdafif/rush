@@ -35,26 +35,26 @@ export function LiveStats({
       }`}
     >
       <div className="flex items-center">
-        <span className="mr-2 text-xs tracking-widest text-zinc-600 uppercase">
+        <span className="text-text-muted mr-2 text-xs tracking-widest uppercase">
           wpm
         </span>
-        <span className="inline-block w-10 text-right font-bold text-orange-500 tabular-nums">
+        <span className="text-signal inline-block w-10 text-right font-bold tabular-nums">
           {wpm}
         </span>
       </div>
       <div className="flex items-center">
-        <span className="mr-2 text-xs tracking-widest text-zinc-600 uppercase">
+        <span className="text-text-muted mr-2 text-xs tracking-widest uppercase">
           acc
         </span>
-        <span className="inline-block w-10 text-right text-zinc-300 tabular-nums">
+        <span className="text-text-primary inline-block w-10 text-right tabular-nums">
           {accuracy}%
         </span>
       </div>
       <div className="flex items-center">
-        <span className="mr-2 text-xs tracking-widest text-zinc-600 uppercase">
+        <span className="text-text-muted mr-2 text-xs tracking-widest uppercase">
           {mode === "time" ? "time" : "elapsed"}
         </span>
-        <span className="inline-block w-10 text-right text-zinc-400 tabular-nums">
+        <span className="text-text-muted inline-block w-10 text-right tabular-nums">
           {timeDisplay}
         </span>
       </div>

@@ -18,7 +18,7 @@ export default function App() {
   /*======================== Return ========================*/
 
   return (
-    <div className="hud-grid flex min-h-screen flex-col bg-zinc-950 text-zinc-300">
+    <div className="hud-grid bg-ink text-text-primary flex min-h-screen flex-col">
       <Header />
       <main className="flex flex-1 flex-col justify-center">
         {view === "typing" ? (

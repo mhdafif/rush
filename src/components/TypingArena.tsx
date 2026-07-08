@@ -57,7 +57,7 @@ function IconBtn({ onClick, icon, label }: IconBtnProps) {
     <button
       onClick={onClick}
       title={label}
-      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-zinc-400"
+      className="text-text-muted hover:bg-panel-raised hover:text-text-primary flex h-8 w-8 cursor-pointer items-center justify-center rounded transition-colors"
     >
       {icon}
     </button>
@@ -193,7 +193,7 @@ export function TypingArena(props: TypingArenaProps) {
             caretStyle={caretStyle}
           />
           {quoteAuthor && (
-            <div className="mt-3 text-right font-mono text-xs text-zinc-600 italic">
+            <div className="text-text-muted mt-3 text-right font-mono text-xs italic">
               {quoteAuthor}
             </div>
           )}

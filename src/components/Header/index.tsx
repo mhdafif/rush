@@ -1,6 +1,12 @@
 import type { VisualMode } from "../../store/settings/ISettingsStore";
 import { ConfigDrawer } from "../ConfigDrawer";
-import { IconCaret, IconConfig, IconSoundOff, IconSoundOn } from "../icons";
+import {
+  IconCaret,
+  IconConfig,
+  IconSoundOff,
+  IconSoundOn,
+  RushMark,
+} from "../icons";
 import { NavBtn } from "./NavBtn";
 import { useHeader } from "./useHeader";
 
@@ -21,7 +27,7 @@ function ModeSummary({
   return (
     <button
       onClick={onClick}
-      className="cursor-pointer border-x border-zinc-800 px-4 py-1 font-mono text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+      className="border-line text-text-muted hover:text-text-primary min-w-0 cursor-pointer truncate border-x px-2 py-1 font-mono text-[11px] transition-colors sm:px-4 sm:text-xs"
     >
       {label}
     </button>
@@ -38,7 +44,7 @@ export function Header() {
     duration,
     caretStyle,
     muted,
-    isTyping,
+    hideChrome,
     configOpen,
     setConfigOpen,
     handleCaretStyleChange,
@@ -76,14 +82,15 @@ export function Header() {
   return (
     <>
       <header
-        className="pointer-events-none fixed top-4 left-1/2 z-50 flex -translate-x-1/2 items-center transition-opacity duration-500"
+        className="pointer-events-none fixed top-3 left-1/2 z-50 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center transition-opacity duration-500 sm:top-4"
         style={{
-          opacity: isTyping ? 0 : 1,
-          pointerEvents: isTyping ? "none" : "auto",
+          opacity: hideChrome ? 0 : 1,
+          pointerEvents: hideChrome ? "none" : "auto",
         }}
       >
-        <div className="flex items-center rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 shadow-lg">
-          <span className="mr-2 px-1 font-mono text-sm font-bold tracking-tight text-orange-600">
+        <div className="border-line bg-panel flex min-w-0 items-center gap-0.5 rounded-xl border px-2 py-1.5 sm:gap-1 sm:px-3 sm:py-2">
+          <span className="text-signal mr-1 flex shrink-0 items-center gap-1 px-1 font-mono text-xs font-bold tracking-tight sm:mr-2 sm:text-sm">
+            <RushMark />
             RUSH
           </span>
 
@@ -93,7 +100,7 @@ export function Header() {
             onClick={() => setConfigOpen((o) => !o)}
           />
 
-          <div className="ml-2 flex items-center gap-1">
+          <div className="ml-1 flex shrink-0 items-center gap-0.5 sm:ml-2 sm:gap-1">
             {navButtons.map((btn) => (
               <NavBtn
                 key={btn.key}

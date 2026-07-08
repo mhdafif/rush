@@ -1,3 +1,5 @@
+import { tokens, withAlpha } from "../design/tokens";
+
 // 4 rows matching MacBook keyboard layout
 // Each entry: [primary (typed key), shift-label shown small on top]
 const ROWS: [string, string][][] = [
@@ -63,18 +65,21 @@ function getHeatStyle(count: number): {
   text: string;
   glow: string;
 } {
-  if (count === 0) return { bg: "#27272a", text: "#71717a", glow: "none" };
-  if (count <= 2) return { bg: "#431407", text: "#fb923c", glow: "none" };
+  const { heat } = tokens.color;
+  if (count === 0)
+    return { bg: heat[0], text: tokens.color.text.muted, glow: "none" };
+  if (count <= 2)
+    return { bg: heat[1], text: tokens.color.signal.active, glow: "none" };
   if (count <= 5)
     return {
-      bg: "#7c2d12",
-      text: "#fdba74",
-      glow: "0 0 6px rgba(234,88,12,0.4)",
+      bg: heat[2],
+      text: tokens.color.signal.active,
+      glow: `0 0 6px ${withAlpha(tokens.color.signal.active, 0.4)}`,
     };
   return {
-    bg: "#ea580c",
-    text: "#ffffff",
-    glow: "0 0 10px rgba(234,88,12,0.7)",
+    bg: heat[3],
+    text: tokens.color.text.onSignal,
+    glow: `0 0 10px ${withAlpha(tokens.color.signal.active, 0.7)}`,
   };
 }
 
@@ -85,19 +90,23 @@ function getLiveStyle(tone: "idle" | "active" | "wrong"): {
 } {
   if (tone === "wrong") {
     return {
-      bg: "#991b1b",
+      bg: tokens.color.status.danger,
       text: "#ffffff",
-      glow: "0 0 10px rgba(220,38,38,0.45)",
+      glow: `0 0 10px ${withAlpha(tokens.color.status.danger, 0.45)}`,
     };
   }
   if (tone === "active") {
     return {
-      bg: "#ea580c",
-      text: "#ffffff",
-      glow: "0 0 10px rgba(234,88,12,0.55)",
+      bg: tokens.color.signal.active,
+      text: tokens.color.text.onSignal,
+      glow: `0 0 10px ${withAlpha(tokens.color.signal.active, 0.55)}`,
     };
   }
-  return { bg: "#3f3f46", text: "#a1a1aa", glow: "none" };
+  return {
+    bg: tokens.color.border.line,
+    text: tokens.color.text.muted,
+    glow: "none",
+  };
 }
 
 interface KeyTileProps {
@@ -159,10 +168,10 @@ function KeyTile({
             color: compact
               ? tone !== "idle"
                 ? "rgba(255,255,255,0.65)"
-                : "#71717a"
+                : tokens.color.text.muted
               : count > 0
                 ? "rgba(255,255,255,0.5)"
-                : "#3f3f46",
+                : tokens.color.border.line,
             marginBottom: 1,
           }}
         >
@@ -184,9 +193,9 @@ function KeyTile({
             width: badgeSize,
             height: badgeSize,
             fontSize: badgeFont,
-            background: "#09090b",
-            color: count >= 6 ? "#fff" : "#fb923c",
-            border: "1px solid #3f3f46",
+            background: tokens.color.background.ink,
+            color: count >= 6 ? "#fff" : tokens.color.signal.active,
+            border: `1px solid ${tokens.color.border.line}`,
           }}
         >
           {count > 9 ? "9+" : count}
@@ -218,14 +227,16 @@ export function KeyboardHeatmap({
   const wrapperGap = compact ? "gap-1" : "gap-1.5";
   const padding = compact ? "px-4 py-3" : "p-3";
   const offsets = compact ? [0, 10, 16, 22] : ROW_OFFSETS;
-  const background = compact ? "rgba(39,39,42,0.45)" : "#18181b";
+  const background = compact
+    ? withAlpha(tokens.color.border.line, 0.45)
+    : tokens.color.background.panel;
   const activeKeySet = new Set(activeKeys.map((key) => key.toLowerCase()));
   const wrongKeySet = new Set(wrongKeys.map((key) => key.toLowerCase()));
 
   return (
     <div
       aria-label={label}
-      className={`mx-auto inline-flex flex-col ${wrapperGap} rounded-2xl border border-zinc-800/80 ${padding} backdrop-blur-sm ${classProps?.className ?? ""}`}
+      className={`mx-auto inline-flex flex-col ${wrapperGap} border-line/80 rounded-2xl border ${padding} backdrop-blur-sm ${classProps?.className ?? ""}`}
       style={{ background }}
     >
       {ROWS.map((row, rowIdx) => (

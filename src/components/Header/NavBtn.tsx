@@ -17,8 +17,8 @@ export function NavBtn({ onClick, active, title, children }: NavBtnProps) {
       onClick={onClick}
       title={title}
       className={cn(
-        "flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
-        active ? "text-orange-500" : "text-zinc-500 hover:text-zinc-200"
+        "flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors sm:h-8 sm:w-8",
+        active ? "text-signal" : "text-text-muted hover:text-text-primary"
       )}
     >
       {children}

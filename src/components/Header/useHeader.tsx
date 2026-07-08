@@ -31,6 +31,10 @@ export function useHeader() {
 
   const isTyping = phase === "running" && !isPaused;
   const disabled = phase === "running";
+  // Header recedes and goes inert whenever it would otherwise sit on top of
+  // a modal-like surface (stats drawer, mode settings) — same treatment it
+  // already gets while actively typing.
+  const hideChrome = isTyping || isDrawerOpen || configOpen;
 
   const handleToggleStatsDrawer = () => {
     useTypingStore.getState().setState("isDrawerOpen", !isDrawerOpen);
@@ -51,7 +55,7 @@ export function useHeader() {
     suddenDeath,
     muted,
     phase,
-    isTyping,
+    hideChrome,
     disabled,
     configOpen,
     setConfigOpen,

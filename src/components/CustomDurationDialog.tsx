@@ -66,10 +66,10 @@ export function CustomDurationDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         showCloseButton={false}
-        className="w-72 rounded-xl border border-zinc-700 bg-zinc-900 p-6 font-mono shadow-2xl"
+        className="border-line bg-panel w-72 rounded-xl border p-6 font-mono"
       >
         <DialogHeader>
-          <DialogTitle className="text-xs tracking-widest text-zinc-500 uppercase">
+          <DialogTitle className="text-text-muted text-xs tracking-widest uppercase">
             custom {label}
           </DialogTitle>
         </DialogHeader>
@@ -83,24 +83,24 @@ export function CustomDurationDialog({
             max={max}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 [appearance:textfield] rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-center font-mono text-lg text-orange-400 transition-colors outline-none focus:border-orange-600 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="border-line bg-panel-raised text-signal focus:border-signal flex-1 [appearance:textfield] rounded-lg border px-3 py-2 text-center font-mono text-lg transition-colors outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
-          <span className="text-xs text-zinc-600">{label}</span>
+          <span className="text-text-muted text-xs">{label}</span>
         </div>
-        <div className="mb-5 text-[10px] text-zinc-700">
+        <div className="text-text-muted mb-5 text-[10px]">
           {min}–{max} {label}
         </div>
 
         <div className="flex gap-2">
           <button
             onClick={commit}
-            className="flex-1 cursor-pointer rounded-lg bg-orange-600 py-2 text-xs text-white transition-colors hover:bg-orange-500"
+            className="bg-signal text-on-signal flex-1 cursor-pointer rounded-lg py-2 text-xs transition-all hover:brightness-95"
           >
             confirm
           </button>
           <button
             onClick={onClose}
-            className="flex-1 cursor-pointer rounded-lg bg-zinc-800 py-2 text-xs text-zinc-400 transition-colors hover:bg-zinc-700"
+            className="bg-panel-raised text-text-muted hover:bg-line flex-1 cursor-pointer rounded-lg py-2 text-xs transition-colors"
           >
             cancel
           </button>

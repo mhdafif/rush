@@ -3,36 +3,48 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "./design/tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-family-mono: "JetBrains Mono", monospace;
-  --font-family-sans: Inter, system-ui, sans-serif;
-  --color-orange-500: #f97316;
-  --color-orange-600: #ea580c;
-  --color-orange-900: #7c2d12;
+  --font-family-mono: var(--strata-font-data);
+  --font-family-sans: var(--strata-font-body);
+  --color-ink: var(--strata-ink);
+  --color-panel: var(--strata-panel);
+  --color-panel-raised: var(--strata-panel-raised);
+  --color-line: var(--strata-line);
+  --color-text-primary: var(--strata-text-primary);
+  --color-text-muted: var(--strata-text-muted);
+  --color-signal: var(--strata-signal);
+  --color-signal-soft: var(--strata-signal-soft);
+  --color-on-signal: var(--strata-on-signal);
+  --color-danger: var(--strata-danger);
+  --color-success: var(--strata-success);
+  --color-info: var(--strata-info);
+  --color-char-untyped: var(--strata-char-untyped);
+  --color-char-upcoming: var(--strata-char-upcoming);
 }
 
 .hud-grid {
   background-image: radial-gradient(
     circle,
-    rgba(234, 88, 12, 0.05) 1px,
+    rgba(245, 166, 35, 0.05) 1px,
     transparent 1px
   );
   background-size: 30px 30px;
 }
 .text-glow {
-  text-shadow: 0 0 10px rgba(234, 88, 12, 0.5);
+  text-shadow: 0 0 10px rgba(245, 166, 35, 0.5);
 }
 .caret-line {
-  background-color: #f97316;
-  box-shadow: 0 0 6px #f97316;
+  background-color: var(--strata-signal);
+  box-shadow: 0 0 6px var(--strata-signal);
   animation: blink 1s infinite steps(2);
 }
 .caret-underline {
-  background-color: #f97316;
-  box-shadow: 0 0 6px #f97316;
+  background-color: var(--strata-signal);
+  box-shadow: 0 0 6px var(--strata-signal);
   animation: blink 1s infinite steps(2);
 }
 @keyframes blink {
@@ -45,6 +57,20 @@
 }
 .caret-blink {
   animation: blink 1s infinite steps(2);
+}
+
+/* STRATA law: focus is always visible, and always the signal colour — this
+   is a console, operators need to see where they are. */
+*:focus-visible {
+  outline: 2px solid var(--strata-signal);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .caret-line,
+  .caret-underline,
+  .caret-blink {
+    animation: none !important;
+  }
 }
 
 @theme inline {
@@ -90,73 +116,43 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* shadcn semantic tokens, collapsed onto the STRATA palette so ui/ primitives
+   (button, dialog, drawer) inherit the same theme as the rest of the app.
+   The app is always-dark (no theme switcher), so there is a single :root
+   block instead of a :root/.dark pair. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: var(--strata-ink);
+  --foreground: var(--strata-text-primary);
+  --card: var(--strata-panel);
+  --card-foreground: var(--strata-text-primary);
+  --popover: var(--strata-panel);
+  --popover-foreground: var(--strata-text-primary);
+  --primary: var(--strata-signal);
+  --primary-foreground: var(--strata-on-signal);
+  --secondary: var(--strata-panel-raised);
+  --secondary-foreground: var(--strata-text-primary);
+  --muted: var(--strata-panel-raised);
+  --muted-foreground: var(--strata-text-muted);
+  --accent: var(--strata-panel-raised);
+  --accent-foreground: var(--strata-text-primary);
+  --destructive: var(--strata-danger);
+  --border: var(--strata-line);
+  --input: var(--strata-line);
+  --ring: var(--strata-signal);
+  --chart-1: var(--strata-signal);
+  --chart-2: var(--strata-info);
+  --chart-3: var(--strata-success);
+  --chart-4: var(--strata-danger);
+  --chart-5: var(--strata-text-muted);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: var(--strata-panel);
+  --sidebar-foreground: var(--strata-text-primary);
+  --sidebar-primary: var(--strata-signal);
+  --sidebar-primary-foreground: var(--strata-on-signal);
+  --sidebar-accent: var(--strata-panel-raised);
+  --sidebar-accent-foreground: var(--strata-text-primary);
+  --sidebar-border: var(--strata-line);
+  --sidebar-ring: var(--strata-signal);
 }
 
 @layer base {

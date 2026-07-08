@@ -8,10 +8,10 @@ export function PauseOverlay({ onResume }: PauseOverlayProps) {
       className="absolute inset-0 z-10 flex cursor-pointer flex-col items-center justify-center"
       onClick={onResume}
     >
-      <div className="text-glow font-mono text-lg font-bold tracking-widest text-orange-500 uppercase">
+      <div className="text-glow text-signal font-mono text-lg font-bold tracking-widest uppercase">
         paused
       </div>
-      <div className="mt-2 font-mono text-xs text-zinc-600">
+      <div className="text-text-muted mt-2 font-mono text-xs">
         click or press any key to resume
       </div>
     </div>

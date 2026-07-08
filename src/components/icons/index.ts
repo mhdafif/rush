@@ -4,3 +4,4 @@ export { IconInfo } from "./IconInfo";
 export { IconLang } from "./IconLang";
 export { IconSoundOff } from "./IconSoundOff";
 export { IconSoundOn } from "./IconSoundOn";
+export { RushMark } from "./RushMark";

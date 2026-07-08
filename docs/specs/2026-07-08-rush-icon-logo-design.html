@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" data-scheme="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RUSH Icon &amp; Logo Design — Design Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-scheme="light"]) {
+      --bg:        #09090b;
+      --bg-card:   #18181b;
+      --border:    #27272a;
+      --border-dim:#1c1c1f;
+      --text:      #d4d4d8;
+      --text-muted:#71717a;
+      --text-dim:  #52525b;
+      --text-vdim: #3f3f46;
+      --accent:    #f97316;
+      --accent-6:  #ea580c;
+      --accent-9:  #7c2d12;
+      --accent-bg: rgba(234,88,12,0.08);
+      --accent-bd: rgba(234,88,12,0.25);
+      --red:       #ef4444;
+      --red-lt:    #f87171;
+      --green:     #4ade80;
+      --sidebar-bg:#111113;
+      --pre-bg:    #09090b;
+      --kbd-bg:    #18181b;
+      --kbd-border:#3f3f46;
+      --dot-color: rgba(234,88,12,0.04);
+      --glow:      0 0 20px rgba(234,88,12,0.3);
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-scheme="dark"]) {
+      --bg:        #f8fafc;
+      --bg-card:   #ffffff;
+      --border:    #e2e8f0;
+      --border-dim:#f1f5f9;
+      --text:      #1e293b;
+      --text-muted:#64748b;
+      --text-dim:  #94a3b8;
+      --text-vdim: #cbd5e1;
+      --accent:    #14b8a6;
+      --accent-6:  #0d9488;
+      --accent-9:  #134e4a;
+      --accent-bg: rgba(20,184,166,0.08);
+      --accent-bd: rgba(20,184,166,0.25);
+      --red:       #ef4444;
+      --red-lt:    #f87171;
+      --green:     #22c55e;
+      --sidebar-bg:#f1f5f9;
+      --pre-bg:    #f8fafc;
+      --kbd-bg:    #f1f5f9;
+      --kbd-border:#e2e8f0;
+      --dot-color: rgba(20,184,166,0.05);
+      --glow:      none;
+    }
+  }
+  :root[data-scheme="dark"] {
+    --bg:#09090b; --bg-card:#18181b; --border:#27272a; --border-dim:#1c1c1f;
+    --text:#d4d4d8; --text-muted:#71717a; --text-dim:#52525b; --text-vdim:#3f3f46;
+    --accent:#f97316; --accent-6:#ea580c; --accent-9:#7c2d12;
+    --accent-bg:rgba(234,88,12,0.08); --accent-bd:rgba(234,88,12,0.25);
+    --red:#ef4444; --red-lt:#f87171; --green:#4ade80;
+    --sidebar-bg:#111113; --pre-bg:#09090b; --kbd-bg:#18181b; --kbd-border:#3f3f46;
+    --dot-color:rgba(234,88,12,0.04); --glow:0 0 20px rgba(234,88,12,0.3);
+  }
+  :root[data-scheme="light"] {
+    --bg:#f8fafc; --bg-card:#ffffff; --border:#e2e8f0; --border-dim:#f1f5f9;
+    --text:#1e293b; --text-muted:#64748b; --text-dim:#94a3b8; --text-vdim:#cbd5e1;
+    --accent:#14b8a6; --accent-6:#0d9488; --accent-9:#134e4a;
+    --accent-bg:rgba(20,184,166,0.08); --accent-bd:rgba(20,184,166,0.25);
+    --red:#ef4444; --red-lt:#f87171; --green:#22c55e;
+    --sidebar-bg:#f1f5f9; --pre-bg:#f8fafc; --kbd-bg:#f1f5f9; --kbd-border:#e2e8f0;
+    --dot-color:rgba(20,184,166,0.05); --glow:none;
+  }
+  :root { --sidebar-w: 220px; }
+  body {
+    background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 14px; line-height: 1.6; min-height: 100vh;
+    background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .theme-switcher { position:fixed; top:16px; right:16px; z-index:100; display:flex; gap:6px;
+    background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:5px 8px; }
+  .theme-btn { width:20px; height:20px; border-radius:50%; border:2px solid transparent; cursor:pointer;
+    transition:border-color .15s, transform .1s; }
+  .theme-btn:hover { transform:scale(1.15); }
+  .theme-btn.active { border-color: var(--accent); }
+  .theme-btn[data-s="dark"]  { background:#09090b; outline:1px solid #3f3f46; outline-offset:1px; }
+  .theme-btn[data-s="light"] { background:#f8fafc; outline:1px solid #e2e8f0; outline-offset:1px; }
+  .layout { display:flex; min-height:100vh; }
+  .sidebar { position:fixed; top:0; left:0; width:var(--sidebar-w); height:100vh; background:var(--sidebar-bg);
+    border-right:1px solid var(--border-dim); padding:28px 0; overflow-y:auto; overflow-x:hidden; z-index:10;
+    transition:width .25s ease, transform .25s ease; }
+  body.sidebar-collapsed { --sidebar-w: 0px; }
+  body.sidebar-collapsed .sidebar { border-right:none; }
+  .sidebar-collapse-btn { position:fixed; top:14px; left:var(--sidebar-w); z-index:30; width:28px; height:28px;
+    background:var(--bg-card); border:1px solid var(--border); border-radius:6px; display:flex; align-items:center;
+    justify-content:center; color:var(--text-dim); font-size:14px; cursor:pointer;
+    transition:left .25s ease, color .15s, background .15s; transform:translateX(8px); }
+  .sidebar-collapse-btn:hover { color:var(--accent); background:var(--accent-bg); }
+  .mobile-menu-btn { display:none; position:fixed; top:14px; left:14px; z-index:60; background:var(--bg-card);
+    border:1px solid var(--border); border-radius:7px; width:36px; height:36px; align-items:center;
+    justify-content:center; font-size:16px; color:var(--text-muted); cursor:pointer;
+    transition:color .15s, background .15s; }
+  .mobile-menu-btn:hover { color:var(--accent); background:var(--accent-bg); }
+  .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:40;
+    opacity:0; transition:opacity .25s ease; }
+  .sidebar-backdrop.open { opacity:1; }
+  .sidebar-logo { font-family:'Space Grotesk', sans-serif; font-weight:900; font-size:18px; color:var(--accent-6);
+    text-shadow:var(--glow); padding:0 20px 24px; border-bottom:1px solid var(--border-dim); display:block;
+    letter-spacing:-0.02em; }
+  .sidebar-sub { font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--text-dim); font-weight:400;
+    display:block; margin-top:3px; letter-spacing:0.05em; }
+  .nav-section-label { font-family:'JetBrains Mono', monospace; font-size:9px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.15em; color:var(--text-vdim); padding:20px 20px 8px; }
+  .nav-link { display:flex; align-items:center; gap:10px; padding:7px 20px; font-size:13px; color:var(--text-muted);
+    text-decoration:none; transition:color .15s, background .15s; cursor:pointer; }
+  .nav-link:hover { color:var(--accent); background:var(--accent-bg); }
+  .nav-link .num { font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--text-vdim); min-width:16px; }
+  .page-header { margin-bottom:40px; }
+  .page-label { font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.2em; color:var(--accent); margin-bottom:10px; }
+  .page-title { font-family:'Space Grotesk', sans-serif; font-size:2.4rem; font-weight:900; color:var(--accent-6);
+    text-shadow:var(--glow); letter-spacing:-0.02em; line-height:1; margin-bottom:10px; }
+  .page-meta { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  .meta-badge { font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-muted); background:var(--bg-card);
+    border:1px solid var(--border); border-radius:5px; padding:3px 10px; }
+  .section { margin-bottom:48px; scroll-margin-top:24px; }
+  .section-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:12px;
+    border-bottom:1px solid var(--border-dim); }
+  .section-num { font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; color:var(--accent);
+    background:var(--accent-bg); border:1px solid var(--accent-bd); border-radius:5px; padding:2px 8px; min-width:32px;
+    text-align:center; }
+  .section-title { font-family:'Space Grotesk', sans-serif; font-size:1.15rem; font-weight:700; color:var(--text); }
+  .card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:18px 20px;
+    margin-bottom:14px; }
+  .card-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:14px; }
+  thead tr { background:var(--sidebar-bg); }
+  th { font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--text-dim); padding:9px 14px; text-align:left; border-bottom:1px solid var(--border); }
+  td { padding:9px 14px; border-bottom:1px solid var(--border-dim); color:var(--text-muted); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--accent-bg); }
+  td code { color:var(--accent); }
+  code { font-family:'JetBrains Mono', monospace; font-size:12px; background:var(--accent-bg); color:var(--accent);
+    border:1px solid var(--accent-bd); border-radius:4px; padding:1px 5px; }
+  .file-tree { background:var(--pre-bg); border:1px solid var(--border); border-radius:8px; padding:16px 18px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; line-height:2; }
+  .ft-dir { color:var(--accent); }
+  .ft-file { color:var(--text-muted); }
+  .ft-cm { color:var(--text-vdim); }
+  .ft-new { color:var(--accent); font-weight:700; }
+  .swatches { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:14px; }
+  .swatch { text-align:center; }
+  .swatch-box { width:100%; height:44px; border-radius:7px; margin-bottom:7px; border:1px solid var(--border); }
+  .swatch-name { font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--text-muted); }
+  .swatch-hex { font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--text-vdim); }
+  .note { background:var(--accent-bg); border-left:3px solid var(--accent-6); border-radius:0 7px 7px 0;
+    padding:10px 14px; font-size:13px; color:var(--text-muted); margin-bottom:14px; }
+  hr { border:none; border-top:1px solid var(--border-dim); margin:32px 0; }
+  h3 { font-family:'Space Grotesk', sans-serif; font-size:14px; font-weight:600; color:var(--text); margin:20px 0 10px; }
+  ul.spec-list { padding-left:18px; color:var(--text-muted); line-height:2; font-size:13px; }
+  ul.spec-list li strong { color:var(--text); }
+  .icon-preview { display:flex; align-items:center; gap:20px; margin-bottom:14px; }
+  .main { margin-left:var(--sidebar-w); padding:48px 48px 80px; max-width:900px; transition:margin-left .25s ease; }
+  @media (max-width:768px) {
+    .sidebar { display:block; transform:translateX(-100%); width:260px; z-index:50; transition:transform .25s ease; }
+    .sidebar.open { transform:translateX(0); }
+    .sidebar-backdrop { display:block; }
+    .sidebar-collapse-btn { display:none; }
+    .mobile-menu-btn { display:flex; }
+    .main { margin-left:0; padding:24px 20px 60px; transition:none; }
+    .card-grid-2 { grid-template-columns:1fr; }
+    .swatches { grid-template-columns:repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<button class="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Open menu">☰</button>
+<div class="sidebar-backdrop" id="backdrop" onclick="closeMobileNav()"></div>
+<button class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebar()" aria-label="Toggle sidebar">‹</button>
+<div class="theme-switcher">
+  <div class="theme-btn" data-s="dark"  title="Dark"  onclick="setScheme('dark')"></div>
+  <div class="theme-btn" data-s="light" title="Light" onclick="setScheme('light')"></div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <span class="sidebar-logo">
+      RUSH Icon &amp; Logo
+      <span class="sidebar-sub">Design Spec · 1.0 · 2026-07-08</span>
+    </span>
+    <div class="nav-section-label">Contents</div>
+    <a class="nav-link" href="#s1"><span class="num">01</span> Context</a>
+    <a class="nav-link" href="#s2"><span class="num">02</span> Decision</a>
+    <a class="nav-link" href="#s3"><span class="num">03</span> Mark spec</a>
+    <a class="nav-link" href="#s4"><span class="num">04</span> Deliverables</a>
+    <a class="nav-link" href="#s5"><span class="num">05</span> Out of scope</a>
+    <a class="nav-link" href="#s6"><span class="num">06</span> Verification</a>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="page-label">Design Spec</div>
+      <div class="page-title">RUSH Icon &amp; Logo</div>
+      <div class="page-meta">
+        <span class="meta-badge">v1.0</span>
+        <span class="meta-badge">2026-07-08</span>
+        <span class="meta-badge">Concept A · Rushing Caret</span>
+      </div>
+    </div>
+
+    <div class="section" id="s1">
+      <div class="section-header"><span class="section-num">01</span><span class="section-title">Context</span></div>
+      <p style="color:var(--text-muted); margin-bottom:10px;">
+        The app's favicon was still the unmodified Vite starter icon — a purple abstract mark with
+        no connection to RUSH's actual identity (near-black ink background, amber
+        <code>#F5A623</code> signal colour, JetBrains Mono, and the glowing blinking caret that is
+        already the app's signature visual). The header also had no icon at all, just the
+        plain-text "RUSH" wordmark.
+      </p>
+      <p style="color:var(--text-muted);">
+        Three concepts were sketched and compared at real favicon sizes (32px/16px) and mocked
+        into the actual header pill during a brainstorming session. <strong style="color:var(--text)">Concept A —
+        "Rushing Caret" — was chosen.</strong>
+      </p>
+    </div>
+
+    <div class="section" id="s2">
+      <div class="section-header"><span class="section-num">02</span><span class="section-title">Decision</span></div>
+      <div class="icon-preview">
+        <svg width="64" height="64" viewBox="0 0 40 40">
+          <rect x="1" y="1" width="38" height="38" rx="9" fill="#0B0F14" stroke="#232C3A"/>
+          <g style="filter:drop-shadow(0 0 5px rgba(245,166,35,.55))">
+            <rect x="22" y="8" width="4" height="24" rx="2" fill="#F5A623"/>
+            <rect x="14" y="18.2" width="5" height="3.6" rx="1.8" fill="#F5A623" opacity=".9"/>
+            <rect x="8" y="18.2" width="4" height="3.6" rx="1.8" fill="#F5A623" opacity=".55"/>
+            <rect x="4" y="18.2" width="2.4" height="3.6" rx="1.8" fill="#F5A623" opacity=".3"/>
+          </g>
+        </svg>
+        <p style="color:var(--text-muted); flex:1;">
+          The app's own blinking caret, mid-sprint, trailing three shrinking, fading marks behind
+          it. Reuses the one visual RUSH already made distinctive instead of inventing an
+          unrelated symbol.
+        </p>
+      </div>
+      <h3>Rejected alternatives</h3>
+      <ul class="spec-list">
+        <li><strong>Forward chevron</strong> (a bold <code>&gt;</code>) — reads too close to a
+          generic play/next-track glyph; not specific enough to RUSH.</li>
+        <li><strong>Ascending bars</strong> (WPM meter) — a fine "speed/stats" mark, but has less
+          to do with the actual act of typing than the caret does.</li>
+      </ul>
+    </div>
+
+    <div class="section" id="s3">
+      <div class="section-header"><span class="section-num">03</span><span class="section-title">Mark spec</span></div>
+      <p style="color:var(--text-muted); margin-bottom:10px;">Two renderings of the same geometry, scaled to context:</p>
+
+      <h3>1. Favicon / app-icon tile — <code>public/favicon.svg</code>, 40×40 viewBox</h3>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-box" style="background:#0B0F14; border:1px solid #232C3A;"></div>
+          <div class="swatch-name">ink (bg)</div><div class="swatch-hex">#0B0F14</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#232C3A;"></div>
+          <div class="swatch-name">line (edge)</div><div class="swatch-hex">#232C3A</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#F5A623;"></div>
+          <div class="swatch-name">signal (mark)</div><div class="swatch-hex">#F5A623</div></div>
+      </div>
+      <pre style="background:var(--pre-bg); border:1px solid var(--border); border-radius:8px; padding:14px 16px; font-family:'JetBrains Mono',monospace; font-size:11.5px; line-height:1.8; color:var(--text-muted); overflow-x:auto;">tile:   rx=9, fill=#0B0F14, stroke=#232C3A
+caret:  x=22 y=8  w=4 h=24 rx=2       fill=#F5A623
+trail1: x=14 y=18.2 w=5   h=3.6 rx=1.8  opacity=.90
+trail2: x=8  y=18.2 w=4   h=3.6 rx=1.8  opacity=.55
+trail3: x=4  y=18.2 w=2.4 h=3.6 rx=1.8  opacity=.30
+glow:   drop-shadow(0 0 5px rgba(245,166,35,.55))</pre>
+
+      <h3>2. Header mark — bare, 24×24 viewBox (matches sibling icons)</h3>
+      <p style="color:var(--text-muted);">
+        No background tile — just the caret + trail, re-expressed on the same 24×24 viewBox used
+        by every other icon in <code>src/components/icons/</code>. Rendered with
+        <code>fill="currentColor"</code> so it inherits whatever colour class wraps it (here,
+        the header's existing <code>text-signal</code>) — no hardcoded hex in the component.
+      </p>
+    </div>
+
+    <div class="section" id="s4">
+      <div class="section-header"><span class="section-num">04</span><span class="section-title">Deliverables</span></div>
+      <table>
+        <thead><tr><th>File</th><th>Change</th></tr></thead>
+        <tbody>
+          <tr><td><code>public/favicon.svg</code></td><td>Replaced with the ink-tile + caret mark (deletes the leftover Vite default).</td></tr>
+          <tr><td><code>src/components/icons/RushMark.tsx</code></td><td>New — the bare mark, <code>fill="currentColor"</code>, default 18×18, following sibling icon conventions.</td></tr>
+          <tr><td><code>src/components/icons/index.ts</code></td><td>Add the <code>RushMark</code> export.</td></tr>
+          <tr><td><code>src/components/Header/index.tsx</code></td><td>Render <code>&lt;RushMark /&gt;</code> before the "RUSH" text span as one lockup; inherits <code>text-signal</code>.</td></tr>
+          <tr><td><code>index.html</code></td><td>Add <code>&lt;meta name="theme-color" content="#0B0F14"&gt;</code> — mobile browser chrome tint. Favicon link already points at <code>/favicon.svg</code>.</td></tr>
+        </tbody>
+      </table>
+      <div class="file-tree">
+        <div><span class="ft-dir">public/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-new">favicon.svg</span> <span class="ft-cm">— replaced ★</span></div>
+        <div><span class="ft-dir">src/components/icons/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-new">RushMark.tsx</span> <span class="ft-cm">— new ★</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">index.ts</span> <span class="ft-cm">— export added</span></div>
+        <div><span class="ft-dir">src/components/Header/</span></div>
+        <div>&nbsp;&nbsp;<span class="ft-file">index.tsx</span> <span class="ft-cm">— lockup wired in</span></div>
+      </div>
+    </div>
+
+    <div class="section" id="s5">
+      <div class="section-header"><span class="section-num">05</span><span class="section-title">Out of scope</span></div>
+      <ul class="spec-list">
+        <li>No README/social-preview logo — scope was explicitly favicon + header only.</li>
+        <li>No PNG/ICO/apple-touch-icon raster fallback. No SVG rasterizer is available on this
+          machine, and evergreen browsers already support SVG favicons directly (the project
+          ships one this way today). A small follow-up once a rasterizer is available if iOS
+          home-screen icons matter later.</li>
+        <li><code>public/icons.svg</code> (the unrelated leftover social-icon sprite sheet) is
+          untouched — unused, out of scope for this change.</li>
+      </ul>
+    </div>
+
+    <div class="section" id="s6">
+      <div class="section-header"><span class="section-num">06</span><span class="section-title">Verification</span></div>
+      <div class="note">
+        Visual check (browser tab + header lockup) plus the existing validation suite — no new
+        tooling needed for this change.
+      </div>
+      <ul class="spec-list">
+        <li>Dev server: browser tab shows the new favicon; header shows mark + "RUSH" as one lockup, colour matching.</li>
+        <li><code>pnpm validate</code> (lint / type-check / prettier) and <code>pnpm build</code> both pass.</li>
+        <li>No new hardcoded hex in <code>Header/index.tsx</code> — mark colour comes from <code>currentColor</code> + the existing <code>text-signal</code> utility.</li>
+      </ul>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function setScheme(s) {
+    document.documentElement.setAttribute('data-scheme', s);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s));
+    localStorage.setItem('doc-scheme', s);
+  }
+  const saved = localStorage.getItem('doc-scheme');
+  const preferred = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-scheme', preferred);
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.s === preferred));
+  });
+  function toggleSidebar() {
+    const collapsed = document.body.classList.toggle('sidebar-collapsed');
+    document.getElementById('sidebarCollapseBtn').textContent = collapsed ? '›' : '‹';
+    localStorage.setItem('sidebar-collapsed', collapsed);
+  }
+  if (localStorage.getItem('sidebar-collapsed') === 'true') {
+    document.body.classList.add('sidebar-collapsed');
+    document.getElementById('sidebarCollapseBtn').textContent = '›';
+  }
+  function toggleMobileNav() {
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.getElementById('backdrop').classList.toggle('open');
+  }
+  function closeMobileNav() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('backdrop').classList.remove('open');
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileNav(); });
+</script>
+</body>
+</html>
